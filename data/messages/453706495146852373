@@ -1,0 +1,1 @@
+{"author":"205909976768708608","bot":false,"channel":"343299242963763200","content":".debug getent passwd | cut -d':' -f1","created":1528242457902,"id":"453706495146852373","server":"343179912196128792"}

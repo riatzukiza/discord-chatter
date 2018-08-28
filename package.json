@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "discord.js": "^11.3.2",
+    "kit-file-system": "^2.0.2"
+  },
+    "scripts":{
+        "start":"sibilant -x ./src/sibilant/main.sibilant"
+    }
+}

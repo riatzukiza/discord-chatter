@@ -1,0 +1,5 @@
+(import ((lit spawn) (from 'child_process)))
+
+(def spawn-hy (path) (spawn "hy" [path]))
+
+(export default spawn-hy)

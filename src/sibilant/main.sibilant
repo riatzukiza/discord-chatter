@@ -1,0 +1,57 @@
+;; (import ((discord (from "./discord")))
+;;         ((hy (from "./hy"))))
+(include "kit/header")
+(import-namespace kit)
+
+(include "./inc/async")
+(import-namespace async)
+
+(require! Discord "discord.js"
+          ;;hy "./hy"
+          fs "./fs.sibilant"
+          (lit Directory File-system) "kit-file-system"
+          token "../../token.js"
+          Path 'path)
+
+
+(include "./db")
+
+(const all (=> (list) (Promise.all list)))
+(def sorted (src)
+     (pipe (.keys Object src)
+           (.sort )
+           (.reduce  (=> (target k)
+                         (tap target (set  k (get src k)))) {})))
+;;(var trainer (hy "./src/hy/trainer"))
+
+(var client (new Discord.Client))
+
+
+
+
+(pipe (.login client token)
+      (.then  (aprint "login success") )
+      (.catch (athrow Error "login failed")))
+
+(.on client 'message
+     (=> ((lit  ( created-timestamp created)
+                (guild server)
+
+                id author channel content))
+
+         (var k ['messages id])
+
+         (all [(insert  k (lit (content content)
+                               (author author.id)
+                               (server (if server server.id null))
+                               (channel channel.id)
+                               (bot author.bot)
+                               id
+                               created))
+               (link  k ['users author.id id] )
+               (link  k ['servers server.id id])
+               (link  k ['channels channel.id id])])))
+
+(.on client 'message-reaction-add (=> (reaction user)))
+(.on client 'message-reaction-remove (=> (reaction user)))
+;;(write-file "./log.json" (JSON.stringify messages))

@@ -1,0 +1,23 @@
+
+(import-namespace async)
+
+(var db (.load fs "./data"))
+
+(def-async insert (key data)
+  (var path (.join key "/"))
+  (.set db  path (.stringify JSON (sorted data))))
+
+(def-async link ( from to)
+  (print from "-->>" to)
+  (var insert-path (.apply Path.join Path (.slice to 0 -1)))
+  (print "insert path" insert-path)
+
+  (await (.insert db  insert-path Directory))
+
+
+  (var from-path (.join from Path.sep)
+       to-path (.join to Path.sep))
+
+  (print from-path "->" to-path)
+
+  (.link db  (Path.relative  to-path from-path) to-path))

@@ -1,0 +1,61 @@
+
+(include "kit/header")
+(import-namespace kit)
+
+(include "kit-interface/header")
+(import-namespace interface)
+
+(include "./inc/async.sibilant")
+(import-namespace async)
+
+(require! Discord "discord.js"
+          'chokidar
+          token "./token.js"
+          Path 'path
+          'fs
+          (lit promisify) 'util)
+
+(var append-file (promisify fs.append-file)
+     write-file (promisify fs.write-file)
+     )
+
+
+(var client (new Discord.Client))
+
+
+;;(var state  (.then (.login client token) (aprint "login success") (athrow Error "login failed")))
+
+
+(def-async send-file (path)
+  (await (timeout 5000))
+  (print (Path.resolve path) )
+  (.send (.find Channel-system ["Error's Log" "bots"])
+         (lit (files [(lit (attachment path)
+                           )]))))
+(def-async watch-files (path))
+
+(def timeout (t) (make-promise (set-timeout success t)))
+
+(var channel null)
+
+
+(var messages (JSON.parse (fs.read-file-sync "./log.json")))
+
+(def ksort (src)
+     (const keys (.keys Object src))
+     (.sort keys)
+     (.reduce keys (=> (target k)
+                       (set target k (get src k))
+                       target)
+              {}))
+
+(pipe (.login client token) (.then  (aprint "login success") (athrow Error "login failed")))
+
+(.on client 'message
+     (=> ((lit  author, (guild server),channel content))
+         (.push messages (JSON.stringify
+                          (ksort (lit (content content)
+                                      (author author.id)
+                                      (server server.id)
+                                      (channel channel.id)))))
+         (write-file "./log.json" (JSON.stringify messages))))

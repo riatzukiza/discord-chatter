@@ -1,0 +1,1 @@
+{"author":"439205512425504771","bot":true,"channel":"343299242963763200","content":"```py\nTraceback (most recent call last):\n  File \"source_file.py\", line 1, in <module>\n    print(open(\"coin\").read())\nIsADirectoryError: [Errno 21] Is a directory: 'coin'\n```","created":1528242151610,"id":"453705210464829442","server":"343179912196128792"}

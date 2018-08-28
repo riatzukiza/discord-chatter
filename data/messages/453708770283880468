@@ -1,0 +1,1 @@
+{"author":"163997823245746177","bot":false,"channel":"343299242963763200","content":".debug from subprocess import call\ncall([\"ls\"])","created":1528243000337,"id":"453708770283880468","server":"343179912196128792"}

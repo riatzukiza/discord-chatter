@@ -1,0 +1,35 @@
+
+(include "kit/header")
+(import-namespace kit)
+
+(include "kit-interface/header")
+(import-namespace interface)
+
+(include "./inc/async.sibilant")
+(import-namespace async)
+
+(def-curried is-named (name v)
+  (= v.name name))
+
+(define Channel-system Interface
+
+  (init ())
+
+  (def find ([server channel])
+       (pipe
+        client.guilds
+        (.find  (is-named server))
+        (get 'channels)
+        (.find (is-named channel)))))
+
+(export Channel-system)
+
+(define Channel Interface (init (pair ))
+  (gett guild-name (first this.pair))
+  (gett channel-name (second this.pair))
+
+  (state (Promise.resolve))
+
+  (def join (pair u)
+       (task (assign u.channel pair) u)))
+(export Channel)

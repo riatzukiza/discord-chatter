@@ -1,0 +1,1 @@
+{"author":"439205512425504771","bot":true,"channel":"343299242963763200","content":"```py\nTraceback (most recent call last):\n  File \"source_file.py\", line 2, in <module>\n    path = os.path.dirname(os.path.abspath(file))\nNameError: name 'file' is not defined\n```","created":1528243432741,"id":"453710583917838338","server":"343179912196128792"}

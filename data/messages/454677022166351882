@@ -1,0 +1,1 @@
+{"author":"392064969178611752","bot":false,"channel":"343299242963763200","content":".debug import os\npath = os.path.dirname(os.path.abspath(__file__))\nwith open(path + '/ fucking gay.py', 'w'):\n     print('fucking gay')","created":1528473849575,"id":"454677022166351882","server":"343179912196128792"}

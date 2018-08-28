@@ -1,0 +1,13 @@
+(require! (lit File-system) "kit-file-system"
+          'fs
+          (lit promisify) 'util
+          Path 'path)
+
+(var sym-link (promisify fs.symlink))
+
+(def-generic File-system.link ( from to root)
+  (print "linking" from "->" to)
+  (sym-link (Path.join root from) (Path.join root to)))
+
+
+(assign module.exports File-system)
