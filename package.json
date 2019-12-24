@@ -1,9 +1,10 @@
 {
   "dependencies": {
-    "discord.js": "^11.3.2",
-    "kit-file-system": "^2.0.2"
+    "@tensorflow/tfjs": "^0.12.7",
+    "@tensorflow/tfjs-node-gpu": "^0.1.15",
+    "discord.js": "^11.3.2"
   },
-    "scripts":{
-        "start":"sibilant -x ./src/sibilant/main.sibilant"
-    }
+  "scripts": {
+    "start": "sibilant -x ./src/sibilant/main.sibilant"
+  }
 }
