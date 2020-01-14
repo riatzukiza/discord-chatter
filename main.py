@@ -4,8 +4,6 @@ import asyncio
 from multiprocessing import Process,Pipe
 from threading import Thread
 
-from  functools import reduce
-
 import discord
 import sys
 import os
@@ -39,37 +37,30 @@ def _ml():
 
     def train(d,e,sample_size=0):
 
-        def count (l,m):
-            return l+len(m)
-
-        l = reduce(count,d,0)
-        print("length",l)
-        textgen.train_on_texts(d, None,  l if l < 128 else 128, e,gen_epochs=sample_size)
+        textgen.train_on_texts(d, None, 2048, e,gen_epochs=sample_size)
         textgen.save("./json_message_model.hdf5")
 
     def think(m):
-        def train_til_valid():
+        try:
+
+
+            message_json = json.dumps(m , sort_keys=True, separators=(",",":"))
+            messages.append(message_json)
+            if len(messages) > 50:
+                print ( "forgetting a message",messages.pop(0))
+
+            train(messages, 50)
+
+            txt = generate()
+
+            reply = json.loads(txt)
+
+            replies.append(reply)
+        except:
             try:
-                print("messages",messages)
-                train(messages, 10)
-
-                txt = generate()
-
-                reply = json.loads(txt)
-
-                replies.append(reply)
+                __import__('traceback').print_exc()
             except:
-                try:
-                    __import__('traceback').print_exc()
-                    train_til_valid()
-                except:
-                    __import__('traceback').print_exc()
-
-        message_json = json.dumps(m , sort_keys=True, separators=(",",":"))
-        messages.append(message_json)
-        if len(messages) > 50:
-            print ( "forgetting a message",messages.pop(0))
-        train_til_valid()
+                print('Failed to print traceback')
 
     while True:
         #think(conn.recv())
