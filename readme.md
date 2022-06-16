@@ -1,12 +1,5 @@
 # Discord Duck 
 
-+ Speaking model
-+ Thought Model
-+ Emotional model
-+ Semantic model
-+ user models
-+ channel models
-
 keeps memory of the last n messages in each channel, and who sent them.
 
 each channel, and each user has its own models
