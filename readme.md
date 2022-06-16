@@ -11,12 +11,3 @@ The frequency with which messages occur in a conversation, influences the overal
 model has on the final output.
 
 the speaking model takes as input the result of each conversations model
-
-
-# Questions
-
-+ How do we decide when and where to send messages?
-
-We should take into consideration the topic of conversation.
-What is the bot currently interested in?
-https://discordapp.com/oauth2/authorize?&client_id=449279570445729793&scope=bot&permissions=0
