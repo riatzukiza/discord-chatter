@@ -17,6 +17,7 @@ the speaking model takes as input the result of each conversations model
 
 ```
 docker build --tag discord-rnn-gpu . # This sets everything up
-docker run -it --gpus=all --rm --volume ${PWD}:/app discord-rnn-gpu # Runs it if Nvidia container framework is present.
-docker run -it --gpus=all --volume ${PWD}:/app discord-rnn-gpu # So you can have a state that will persist
+docker run -it --gpus all --rm --volume ${PWD}:/app discord-rnn-gpu # Runs it if Nvidia container framework is present.
+docker run -it --gpus all --volume ${PWD}:/app discord-rnn-gpu # So you can have a state that will persist
+docker run -it --gpus all --env-file .env --volume ${PWD}:/app discord-rnn-gpu # So you can have a state that will persist with an environment file
 ```

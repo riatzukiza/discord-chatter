@@ -65,7 +65,7 @@ def train(d,e,sample_size=0):
     textgen.train_on_texts(d, None, int(os.environ['BATCH_SIZE']), e,gen_epochs=sample_size,
                            # verbose=0,
                            # verbose=1,
-                           multi_gpu=True
+                           # multi_gpu=True
                             # , multi_gpu=bool(random.getrandbits(1))
                             )
     textgen.save("./json_message_model.hdf5")
@@ -157,7 +157,7 @@ async def on_message(message):
         return
 
     log(message.channel.id)
-    log(f"Got a message from {message.author.name} in {message.channel.name}: {message.content}")
+    # log(f"Got a message from {message.author.name} in {message.channel.name}: {message.content}")
 
     incomeing.append(formatMessage(message))
     with open('log.json','w') as f:
