@@ -11,3 +11,12 @@ The frequency with which messages occur in a conversation, influences the overal
 model has on the final output.
 
 the speaking model takes as input the result of each conversations model
+
+
+# Some important commands 
+
+```
+docker build --tag discord-rnn-gpu . # This sets everything up
+docker run -it --gpus=all --rm --volume ${PWD}:/app discord-rnn-gpu # Runs it if Nvidia container framework is present.
+docker run -it --gpus=all --volume ${PWD}:/app discord-rnn-gpu # So you can have a state that will persist
+```
