@@ -1,16 +1,18 @@
 # Discord Duck 
 
-keeps memory of the last n messages in each channel, and who sent them.
+```
 
-each channel, and each user has its own models
+DISCORD_TOKEN=<VERY SECRET>
+LOG_CHANNEL=<CHANNEL ID>
+MAX_MESSAGES=100
+BATCH_SIZE=2048
+SPEECH_THREADS=2
+EPOCHS_PER_MESSAGE=20
+MIN_TEMP=0.4
+MAX_TEMP=0.6
+```
 
-each channel, group chat, and PM session represents a conversation.
-each conversation has its own model.
 
-The frequency with which messages occur in a conversation, influences the overall weight that
-model has on the final output.
-
-the speaking model takes as input the result of each conversations model
 
 
 # Some important commands 
