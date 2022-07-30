@@ -1,0 +1,52 @@
+
+# Base Docker compose for all environments
+version: "3.4"
+
+services:
+  # twitter bot
+  duck:
+    restart: always
+    env_file:
+      - .env.duck
+    volumes:
+      - .:/app
+    image: discord-rnn-bot
+    build: .
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: [ "0" ]
+              capabilities: [gpu]
+
+  tim:
+    restart: always
+    env_file:
+      - .env.tim
+    volumes:
+      - .:/app
+    image: discord-rnn-bot
+    build: .
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: [ "1" ]
+              capabilities: [gpu]
+  hivemind:
+    restart: always
+    env_file:
+      - .env.hivemind
+    volumes:
+      - .:/app
+    image: discord-rnn-bot
+    build: .
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: [ "2" ]
+              capabilities: [gpu]

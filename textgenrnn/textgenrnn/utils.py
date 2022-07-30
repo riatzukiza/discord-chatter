@@ -45,7 +45,7 @@ def textgenrnn_generate(model, vocab,
                         indices_char, temperature=0.5,
                         maxlen=40, meta_token='<s>',
                         word_level=False,
-                        single_text=False,
+                        single_text=True,
                         max_gen_length=300,
                         interactive=False,
                         top_n=3,
@@ -58,6 +58,7 @@ def textgenrnn_generate(model, vocab,
 
     collapse_char = ' ' if word_level else ''
     end = False
+    print("salad")
 
     # If generating word level, must add spaces around each punctuation.
     # https://stackoverflow.com/a/3645946/9314418
@@ -90,7 +91,7 @@ def textgenrnn_generate(model, vocab,
         if not interactive:
             # auto-generate text without user intervention
             next_index = textgenrnn_sample(
-                model.predict(encoded_text, batch_size=1)[0],
+                model.predict(encoded_text, verbose=0, batch_size=1)[0],
                 next_temperature)
             next_char = indices_char[next_index]
             text += [next_char]
@@ -238,7 +239,7 @@ def synthesize(textgens, n=1, return_as_list=False, prefix='',
     """
 
     gen_texts = []
-    iterable = trange(n) if progress and n > 1 else range(n)
+    iterable = range(n) #trange(n,leave=False) if progress and n > 1 else range(n)
     for _ in iterable:
         shuffle(textgens)
         gen_text = prefix

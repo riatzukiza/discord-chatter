@@ -1,0 +1,16 @@
+1/1 [==============================] - 0s 21ms/step
+hivemind_1  | Ignoring exception in on_ready
+hivemind_1  | Traceback (most recent call last):
+hivemind_1  |   File "/opt/conda/lib/python3.9/site-packages/discord/client.py", line 343, in _run_event
+hivemind_1  |     await coro(*args, **kwargs)
+hivemind_1  |   File "/app/main.py", line 26, in on_ready
+hivemind_1  |     await handle_replies()
+1/1 [==============================] - 0s 13ms/step
+hivemind_1  |   File "/app/bot_src/main.py", line 27, in handle_replies
+hivemind_1  |     await handle_recent_replies()
+hivemind_1  |   File "/app/bot_src/main.py", line 18, in handle_recent_replies
+hivemind_1  |     channel = await client.get_channel(reply["channel"])
+hivemind_1  | TypeError: object NoneType can't be used in 'await' expression
+1/1 [==============================] - 0s 15ms/step
+1/1 [==============================] - 0s 18ms/step- loss: 3.4695
+1/1 [==============================] - 0s 22ms/step

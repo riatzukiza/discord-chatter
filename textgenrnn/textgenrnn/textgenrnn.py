@@ -45,6 +45,7 @@ class textgenrnn:
     def __init__(self, weights_path=None,
                  vocab_path=None,
                  config_path=None,
+                 config={},
                  name="textgenrnn",
                  allow_growth=None):
 
@@ -65,6 +66,8 @@ class textgenrnn:
             with open(config_path, 'r',
                       encoding='utf8', errors='ignore') as json_file:
                 self.config = json.load(json_file)
+        # elif config is not None:
+        #     self.config = config
 
         self.config.update({'name': name})
         self.default_config.update({'name': name})
@@ -261,9 +264,9 @@ class textgenrnn:
                               callbacks=[
                                   LearningRateScheduler(
                                       lr_linear_decay),
-                                  generate_after_epoch(
-                                      self, gen_epochs,
-                                      max_gen_length),
+                                  # generate_after_epoch(
+                                  #     self, gen_epochs,
+                                  #     max_gen_length),
                                   save_model_weights(
                                       self, num_epochs,
                                       save_epochs)],
