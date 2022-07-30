@@ -1,8 +1,0 @@
-(import R (from 'ramda))
-(import child_process )
-
-
-(def-curried spawn (name args opts))
-
-
-(export ())

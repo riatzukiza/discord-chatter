@@ -1,0 +1,23 @@
+
+# Base Docker compose for all environments
+version: "3.4"
+
+services:
+  duck:
+    restart: always
+    environment:
+      - LOGGING_LEVEL
+    volumes:
+      - .:/
+    image: discord-rnn-bot
+    build: .
+    ports:
+      - "8080:8080"
+      # it will
+    # depends_on:
+    #   - backend
+
+
+volumes:
+  localstack_data:
+  postgres_data:
