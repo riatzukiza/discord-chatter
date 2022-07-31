@@ -35,9 +35,13 @@ def textgenrnn_model(num_classes, cfg, context_size=None,
 
     if context_size is None:
         model = Model(inputs=[input], outputs=[output])
-        if weights_path is not None:
-            model.load_weights(weights_path, by_name=True)
+        try:
+            if weights_path is not None:
+                model.load_weights(weights_path, by_name=True)
+        except FileNotFoundError as e:
+            pass
         model.compile(loss='categorical_crossentropy', optimizer=optimizer)
+
 
     else:
         context_input = Input(

@@ -24,6 +24,7 @@ def formatMessage(message):
     }
 @client.event
 async def on_ready():
+    print('ready')
     start_threads()
     await asyncio.sleep(10)
     await handle_replies()
@@ -35,7 +36,11 @@ async def on_message(message):
         print ("not responding to self.")
         return
 
-    incomeing.append(formatMessage(message))
+    formated_message =formatMessage(message)
+    # print("message recieved")
+    # print(formated_message)
+
+    incomeing.append(formated_message)
     with open(os.environ['INCOMEING_JSON'],'w') as f:
         json.dump(incomeing,f)
 

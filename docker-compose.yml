@@ -3,7 +3,23 @@
 version: "3.4"
 
 services:
-  # twitter bot
+  twitter-bot:
+    restart: always
+    build: ./twitter-bot
+    env_file:
+      - ./twitter-bot/.env
+    volumes:
+      - ./twitter-bot:/app
+
+
+  jim:
+    restart: always
+    env_file:
+      - .env.jim
+    volumes:
+      - .:/app
+    image: discord-rnn-bot
+    build: .
   duck:
     restart: always
     env_file:

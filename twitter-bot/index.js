@@ -25,7 +25,6 @@ discord.on('ready', async () => {
     stream.on('data', (event) => {
         if(event.lang === 'en' ) {
             let text = event?.extended_tweet?.full_text || event.text
-            console.log("text",text)
             twitterChannel.send(text)
         }
 

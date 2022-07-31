@@ -31,7 +31,7 @@ def speak():
 def train(d,e,sample_size=0):
     model.train_on_texts(d, None, int(os.environ['BATCH_SIZE']), e,
 
-        verbose=0,
+        verbose=2,
                          gen_epochs=int(os.environ['GEN_EPOCHS']),)
     save_model()
 
