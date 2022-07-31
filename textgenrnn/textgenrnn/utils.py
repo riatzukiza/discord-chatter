@@ -45,7 +45,7 @@ def textgenrnn_generate(model, vocab,
                         indices_char, temperature=0.5,
                         maxlen=40, meta_token='<s>',
                         word_level=False,
-                        single_text=True,
+                        single_text=False,
                         max_gen_length=300,
                         interactive=False,
                         top_n=3,
@@ -58,7 +58,6 @@ def textgenrnn_generate(model, vocab,
 
     collapse_char = ' ' if word_level else ''
     end = False
-    print("salad")
 
     # If generating word level, must add spaces around each punctuation.
     # https://stackoverflow.com/a/3645946/9314418
@@ -82,7 +81,6 @@ def textgenrnn_generate(model, vocab,
 
     if len(model.inputs) > 1:
         model = Model(inputs=model.inputs[0], outputs=model.outputs[1])
-
     while not end and len(text) < max_gen_length:
         encoded_text = textgenrnn_encode_sequence(text[-maxlen:],
                                                   vocab, maxlen)

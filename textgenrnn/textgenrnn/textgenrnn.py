@@ -45,7 +45,7 @@ class textgenrnn:
     def __init__(self, weights_path=None,
                  vocab_path=None,
                  config_path=None,
-                 config={},
+                 config=None,
                  name="textgenrnn",
                  allow_growth=None):
 
@@ -66,8 +66,8 @@ class textgenrnn:
             with open(config_path, 'r',
                       encoding='utf8', errors='ignore') as json_file:
                 self.config = json.load(json_file)
-        # elif config is not None:
-        #     self.config = config
+        elif config is not None:
+            self.config = config
 
         self.config.update({'name': name})
         self.default_config.update({'name': name})
@@ -202,7 +202,7 @@ class textgenrnn:
         gen = generate_sequences_from_texts(
             texts, indices_list, self, context_labels, batch_size)
 
-        base_lr = 4e-3
+        base_lr = self.config.get('base_lr', 4e-3)
 
         # scheduler function must be defined inline.
         def lr_linear_decay(epoch):

@@ -10,4 +10,6 @@ try:
     incomeing = json.load(open(os.environ['INCOMEING_JSON']))
 except IOError:
     pass
+except json.decoder.JSONDecodeError:
+    pass
 

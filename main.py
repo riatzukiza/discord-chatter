@@ -16,7 +16,10 @@ def formatMessage(message):
     else:
         channel_name = f"DM from {channel.recipient.name}"
     return {
+        "created_at":str(message.created_at),
+        "raw_mentions":message.raw_mentions,
         "author_name":author.name,
+        "guild":message.guild.id,
         "channel_name": channel_name,
         "content":message.content,
         "author":author.id,
@@ -25,20 +28,20 @@ def formatMessage(message):
 @client.event
 async def on_ready():
     print('ready')
+    # These need to be here.
     start_threads()
-    await asyncio.sleep(10)
     await handle_replies()
 
 @client.event
 async def on_message(message):
 
+    formated_message =formatMessage(message)
+    print("message recieved")
+    print(formated_message)
+
     if message.author.id == client.user.id:
         print ("not responding to self.")
         return
-
-    formated_message =formatMessage(message)
-    # print("message recieved")
-    # print(formated_message)
 
     incomeing.append(formated_message)
     with open(os.environ['INCOMEING_JSON'],'w') as f:

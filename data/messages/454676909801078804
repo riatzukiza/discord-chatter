@@ -1,1 +1,0 @@
-{"author":"392064969178611752","bot":false,"channel":"343299242963763200","content":".debug import os\npath = os.path.dirname(os.path.abspath(__file__))\nwith open(path + '/AccordingToAllKnownLaws.py', 'w'):\n     print('AccordingToAllKnownLaws')","created":1528473822785,"id":"454676909801078804","server":"343179912196128792"}

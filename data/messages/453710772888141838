@@ -1,1 +1,0 @@
-{"author":"163997823245746177","bot":false,"channel":"343299242963763200","content":".debug import os\npath = os.path.dirname(os.path.abspath(__file__))\nwith open(path + '/test.py', 'w'):\n    print('test')","created":1528243477795,"id":"453710772888141838","server":"343179912196128792"}

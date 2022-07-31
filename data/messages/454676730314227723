@@ -1,1 +1,0 @@
-{"author":"392064969178611752","bot":false,"channel":"343299242963763200","content":".debug import os\npath = os.path.dirname(os.path.abspath(__file__))\nwith open(path + '/despacito.py', 'w'):\n     print('despacito')","created":1528473779992,"id":"454676730314227723","server":"343179912196128792"}
