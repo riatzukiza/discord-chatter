@@ -11,19 +11,18 @@ client = Bot(command_prefix=f"./{os.environ['MODEL_NAME']}")
 ### Reply handler##############
 async def handle_recent_replies():
     try:
-        while replies:
-            reply = replies.pop(0)
-            with open(os.environ['REPLIES_JSON'],'w') as f:
-                json.dump(replies,f)
-            print("hanldling reply")
-            print(reply)
+        while replies.data:
+            reply_value = replies.pop(0,save=True)
+
+            if isinstance(reply_value,str):
+                reply = json.loads(reply_value)
+            else:
+                reply = reply_value
 
             try:
                 channel = await client.fetch_channel(int(reply["channel"]))
             except:
                 channel = await client.fetch_channel(int(os.environ["DEFAULT_CHANNEL"]))
-            print(reply["channel"])
-            print(channel)
             # text_channel_list = []
             # for guild in client.guilds:
             #     for channel in guild.text_channels:
@@ -31,8 +30,6 @@ async def handle_recent_replies():
             # print(text_channel_list)
 
             if channel is None:
-                print("this bot tried to send to a channel it can't see")
-                print(os.environ["DEFAULT_CHANNEL"])
                 channel = await client.fetch_channel(int(os.environ["DEFAULT_CHANNEL"]))
                 print(channel)
 
@@ -42,8 +39,8 @@ async def handle_recent_replies():
             else:
                 print("default channel not working?")
     except:
-        print("ops")
-        __import__('traceback').print_exc()
+        # print("ops")
+        # __import__('traceback').print_exc()
         pass
 
 async def handle_replies():

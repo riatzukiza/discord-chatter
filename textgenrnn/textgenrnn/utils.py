@@ -291,6 +291,7 @@ class save_model_weights(Callback):
         super().__init__()
         self.textgenrnn = textgenrnn
         self.weights_name = textgenrnn.config['name']
+        self.weights_path = textgenrnn.weights_path
         self.num_epochs = num_epochs
         self.save_epochs = save_epochs
 
@@ -303,5 +304,4 @@ class save_model_weights(Callback):
             self.textgenrnn.model.save_weights(
                 "{}_weights_epoch_{}.hdf5".format(self.weights_name, epoch+1))
         else:
-            self.textgenrnn.model.save_weights(
-                "{}_weights.hdf5".format(self.weights_name))
+            self.textgenrnn.model.save_weights(self.weights_path)

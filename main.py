@@ -1,6 +1,7 @@
 from bot_src.main import start_discord, client, handle_replies
 from bot_src.threads import start_threads
-from bot_src.data import incomeing
+from bot_src.data import messages, labels
+from operator import itemgetter
 
 import asyncio
 
@@ -32,20 +33,43 @@ async def on_ready():
     start_threads()
     await handle_replies()
 
+# class LabelSpace:
+#     def __init__(self,) -> None:
+
+
+
+
 @client.event
 async def on_message(message):
 
     formated_message =formatMessage(message)
-    print("message recieved")
-    print(formated_message)
+
+    # guild,channel,channel_name,author,author_name = itemgetter('guild','channel','channel_name','author','author_name')(formated_message)
+
+    # print("message recieved")
+    # print(formated_message)
 
     if message.author.id == client.user.id:
-        print ("not responding to self.")
         return
+    messages.append(json.dumps(formated_message, separators=(",",":")))
+    # labels.append(f"{author}.{author_name}.{channel}.{channel_name}.{guild}")
 
-    incomeing.append(formated_message)
-    with open(os.environ['INCOMEING_JSON'],'w') as f:
-        json.dump(incomeing,f)
+    # messages.append(json.dumps(formated_message, separators=(",",":")))
+    # labels.append(f"{author}")
+
+    # messages.append(json.dumps(formated_message, separators=(",",":")))
+    # labels.append(f"{channel}")
+
+    # messages.append(json.dumps(formated_message, separators=(",",":")))
+    # labels.append(f"{guild}")
+
+    # messages.append(json.dumps(formated_message, separators=(",",":")))
+    # labels.append(f"{channel_name}")
+
+    # messages.append(json.dumps(formated_message, separators=(",",":")))
+    # labels.append(f"{author_name}")
+    messages.save()
+
 
 
 start_discord()

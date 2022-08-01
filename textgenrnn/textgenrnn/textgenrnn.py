@@ -49,13 +49,11 @@ class textgenrnn:
                  name="textgenrnn",
                  allow_growth=None):
 
-        if weights_path is None:
-            weights_path = resource_filename(__name__,
-                                             'textgenrnn_weights.hdf5')
+        if weights_path is None: weights_path = resource_filename(__name__, 'textgenrnn_weights.hdf5')
+        self.weights_path = weights_path
 
-        if vocab_path is None:
-            vocab_path = resource_filename(__name__,
-                                           'textgenrnn_vocab.json')
+        if vocab_path is None: vocab_path = resource_filename(__name__, 'textgenrnn_vocab.json')
+        self.vocab_path = vocab_path
 
         if allow_growth is not None:
             c = tf.compat.v1.ConfigProto()
@@ -125,6 +123,7 @@ class textgenrnn:
                        train_size=1.0,
                        max_gen_length=300,
                        validation=True,
+                       base_lr=4e-3,
                        dropout=0.0,
                        via_new_model=False,
                        save_epochs=0,
@@ -202,10 +201,10 @@ class textgenrnn:
         gen = generate_sequences_from_texts(
             texts, indices_list, self, context_labels, batch_size)
 
-        base_lr = self.config.get('base_lr', 4e-3)
 
         # scheduler function must be defined inline.
         def lr_linear_decay(epoch):
+            print(base_lr)
             return (base_lr * (1 - (epoch / num_epochs)))
 
         '''
@@ -218,8 +217,8 @@ class textgenrnn:
             if new_model:
                 weights_path = None
             else:
-                weights_path = "{}_weights.hdf5".format(self.config['name'])
-                self.save(weights_path)
+                weights_path = self.weights_path
+            self.save(weights_path)
 
 
             if multi_gpu:
@@ -236,14 +235,28 @@ class textgenrnn:
                 model_t = parallel_model
                 print("Training on {} GPUs.".format(num_gpus))
             else:
-                model_t = self.model
+                parallel_model = textgenrnn_model(self.num_classes,
+                                                    dropout=dropout,
+                                                    cfg=self.config,
+                                                    context_size=context_labels.shape[1],
+                                                    weights_path=weights_path)
+                parallel_model.compile(loss='categorical_crossentropy',
+                                        optimizer=Adam(lr=base_lr))
+                model_t = parallel_model
         else:
+
+            if new_model:
+                weights_path = None
+            else:
+               weights_path=self.weights_path
+
             if multi_gpu:
                 from tensorflow import distribute as distribute
                 if new_model:
                     weights_path = None
                 else:
-                    weights_path = "{}_weights.hdf5".format(self.config['name'])
+                    weights_path = self.weights_path
+
 
                 strategy = distribute.MirroredStrategy()
                 with strategy.scope():
@@ -252,12 +265,20 @@ class textgenrnn:
                                                       cfg=self.config,
                                                       weights_path=weights_path)
                     parallel_model.compile(loss='categorical_crossentropy',
-                                           optimizer=Adam(lr=4e-3))
+                                           optimizer=Adam(lr=base_lr))
 
                 model_t = parallel_model
                 print("Training on {} GPUs.".format(num_gpus))
             else:
-                model_t = self.model
+                parallel_model = textgenrnn_model(self.num_classes,
+                                                    dropout=dropout,
+                                                    cfg=self.config,
+                                                    # context_size=context_labels.shape[1],
+                                                    weights_path=weights_path
+                                                  )
+                parallel_model.compile(loss='categorical_crossentropy',
+                                        optimizer=Adam(lr=base_lr))
+                model_t = parallel_model
 
         model_t.fit(gen, steps_per_epoch=steps_per_epoch,
                               epochs=num_epochs,
@@ -319,8 +340,7 @@ class textgenrnn:
                                       cfg=self.config)
 
         # Save the files needed to recreate the model
-        with open('{}_vocab.json'.format(self.config['name']),
-                  'w', encoding='utf8') as outfile:
+        with open(self.vocab_path, 'w', encoding='utf8') as outfile:
             json.dump(self.tokenizer.word_index, outfile, ensure_ascii=False)
 
         with open('{}_config.json'.format(self.config['name']),
