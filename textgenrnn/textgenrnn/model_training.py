@@ -50,7 +50,10 @@ def generate_sequences_from_texts(texts, indices_list,
                 Y_batch.append(y)
 
                 if context_labels is not None:
-                    context_batch.append(context_labels[text_index])
+                    try:
+                        context_batch.append(context_labels[text_index])
+                    except:
+                        pass
 
                 count_batch += 1
 

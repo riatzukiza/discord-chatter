@@ -25,7 +25,10 @@ discord.on('ready', async () => {
     stream.on('data', (event) => {
         if(event.lang === 'en' ) {
             let text = event?.extended_tweet?.full_text || event.text
-            twitterChannel.send(text)
+
+            if(text.slice(0,2) !== "RT") {
+                twitterChannel.send(text)
+            }
         }
 
     });

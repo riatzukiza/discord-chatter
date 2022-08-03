@@ -1,40 +1,47 @@
-import discord
+from  discord.ext.commands import Bot
 import json
 import os
 import asyncio
 from .data import replies
 
 
-client = discord.Client()
+client = Bot(command_prefix=f"./{os.environ['MODEL_NAME']}")
 
 
 ### Reply handler##############
 async def handle_recent_replies():
-    while replies:
-        reply = replies.pop(0)
-        # with open(os.environ['REPLIES_JSON'],'w') as f:
-        #     json.dump(replies,f)
-        
-        print("hanldling reply")
-        print(reply)
+    try:
+        while replies.data:
+            reply_value = replies.pop(0,save=True)
 
-        channel = client.get_channel(str(reply["channel"]))
-        print(reply["channel"])
-        print(channel)
-        # text_channel_list = []
-        # for guild in client.guilds:
-        #     for channel in guild.text_channels:
-        #         text_channel_list.append(channel.name)
-        # print(text_channel_list)
+            if isinstance(reply_value,str):
+                reply = json.loads(reply_value)
+            else:
+                reply = reply_value
 
-        if channel is None:
-            print("this bot tried to send to a channel it can't see")
-            print(os.environ["DEFAULT_CHANNEL"])
-            channel = client.get_channel(str(os.environ["DEFAULT_CHANNEL"]))
-            print(channel)
+            try:
+                channel = await client.fetch_channel(int(reply["channel"]))
+            except:
+                channel = await client.fetch_channel(int(os.environ["DEFAULT_CHANNEL"]))
+            # text_channel_list = []
+            # for guild in client.guilds:
+            #     for channel in guild.text_channels:
+            #         text_channel_list.append(channel.name)
+            # print(text_channel_list)
 
-        if channel is not None:
-            await channel.send(reply["content"])
+            if channel is None:
+                channel = await client.fetch_channel(int(os.environ["DEFAULT_CHANNEL"]))
+                print(channel)
+
+            if channel is not None and reply['content']:
+                print(f"sending {reply['content']}")
+                await channel.send(reply["content"])
+            else:
+                print("default channel not working?")
+    except:
+        # print("ops")
+        # __import__('traceback').print_exc()
+        pass
 
 async def handle_replies():
     while True:

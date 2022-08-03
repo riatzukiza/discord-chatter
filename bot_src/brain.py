@@ -1,69 +1,61 @@
 from textgenrnn.textgenrnn import textgenrnn
-from .data import messages, replies, incomeing
-from .model import load_model, save_model
+from .data import messages, labels, replies
+# from .model import load_model, save_model
 
 import json
 import os
+import time
 import random
+MODEL_PATH=os.environ['MODEL_PATH']
+model=textgenrnn(MODEL_PATH,name=os.environ['MODEL_NAME'])
 
 # This is for training on
-model = load_model()
 def save_message_strings(m):
-    message_json = json.dumps(m , sort_keys=True, separators=(",",":"))
-    print(message_json)
+    message_json = json.dumps(m , separators=(",",":"))
     messages.append(message_json)
 
 def generate():
     # We load this model in to not conflict with anything happening in training.
     # This is the model as of now, training could finish and there is another model available
-    return model.generate(
-        n=1,prefix="",
-        temperature=random.uniform(float(os.environ['MIN_TEMP']),float(os.environ['MAX_TEMP'])),return_as_list=True)[0]
+    temp=random.uniform(float(os.environ['MIN_TEMP']),float(os.environ['MAX_TEMP']))
+    string=model.generate(
+        max_gen_length=4096,
+        progress=False,
+        n=1,prefix='{"',temperature=temp,return_as_list=True)[0]
+    print(f"generated a new string with temp of {temp}: {string}")
+
+    return string
 
 def speak():
     while True:
         try:
-            txt = generate()
-            # print(f"attempting a message:{txt}")
-            print(txt)
-            reply = json.loads(txt)
+
+            reply = generate()
+
             replies.append(reply)
-            # with open(os.environ['REPLIES_JSON'], 'w') as f:
-            #     json.dump(replies,f)
         except Exception as e:
-            __import__('traceback').print_exc()
+            # __import__('traceback').print_exc()
             pass
 
-
-def train(d,e,sample_size=0):
-
-    try:
-        model.train_on_texts(d, None, int(os.environ['BATCH_SIZE']), e,
-                            verbose=2,
-                            train_size=0.8,
-                            # dropout=0.1,
-                            gen_epochs=int(os.environ['GEN_EPOCHS']),)
-
-    except Exception as e:
-        # print(f'Failed with {txt}')
-        __import__('traceback').print_exc()
-        pass
-    # save_model()
-
-def trim_message_list(messages):
-    if len(messages) > int(os.environ['MAX_MESSAGES']):
-        return messages.pop(0)
-
-def think(m):
-    try:
-        save_message_strings(m)
-        # with open(os.environ['MESSAGES_JSON'],'w') as f:
-        #     json.dump(messages,f)
-        train(messages, int(os.environ['EPOCHS_PER_MESSAGE']))
-    except Exception as e:
-        __import__('traceback').print_exc()
+def train():
+    if messages.data:
+        epochs=int(os.environ.get('TRAINING_EPOCHS',5))
+        print(f'Epochs:{epochs}')
+        print("training on data")
+        model.train_on_texts(
+            # new_model=True,
+            # via_new_model=True,
+            texts=messages.data,
+            # context_labels=labels.data,
+            batch_size=int(os.environ.get('BATCH_SIZE',128)),
+            num_epochs=epochs,
+            base_lr=float(os.environ.get('BASE_LEARNING_RATE',0.1)),
+            verbose=2,
+            gen_epochs=1
+            )
+        model.save(MODEL_PATH)
 
 def _ml():
     while True:
-        if incomeing:
-            think(incomeing.pop(0))
+        train()
+
