@@ -1,1 +1,0 @@
-{"author":"163997823245746177","bot":false,"channel":"343299242963763200","content":".debug import os\npath = os.path.dirname(os.path.abspath(__file__))\nos.listdir(\"/var/www/service/usercode/\")","created":1528243163171,"id":"453709453259440128","server":"343179912196128792"}

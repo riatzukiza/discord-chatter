@@ -1,1 +1,0 @@
-{"author":"260525832584429570","bot":false,"channel":"408576171886903296","content":".tone eval(compile('for x in range(1):\\n import time\\n time.sleep(20)','a','single'))","created":1528114262702,"id":"453168805506449418","server":"381467097030459393"}

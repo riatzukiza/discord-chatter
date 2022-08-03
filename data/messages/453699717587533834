@@ -1,1 +1,0 @@
-{"author":"439205512425504771","bot":true,"channel":"343299242963763200","content":"```py\n  File \"source_file.py\", line 1\n    print (\".debug print (\"I am a python\")\")\n                           ^\nSyntaxError: invalid syntax\n```","created":1528240842006,"id":"453699717587533834","server":"343179912196128792"}

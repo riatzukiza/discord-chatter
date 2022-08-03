@@ -12,8 +12,8 @@ client = discord.Client()
 async def handle_recent_replies():
     while replies:
         reply = replies.pop(0)
-        with open(os.environ['REPLIES_JSON'],'w') as f:
-            json.dump(replies,f)
+        # with open(os.environ['REPLIES_JSON'],'w') as f:
+        #     json.dump(replies,f)
         
         print("hanldling reply")
         print(reply)

@@ -7,6 +7,21 @@ import asyncio
 import json
 import os
 
+# def formatMessage(message):
+#     channel = message.channel
+#     author = message.author
+
+#     if hasattr(channel, 'name'):
+#         channel_name= channel.name
+#     else:
+#         channel_name = f"DM from {channel.recipient.name}"
+#     return {
+#         "author_name":author.name,
+#         "channel_name": channel_name,
+#         "content":message.content,
+#         "author":author.id,
+#         "channel":channel.id
+#     }
 def formatMessage(message):
     channel = message.channel
     author = message.author
@@ -16,7 +31,10 @@ def formatMessage(message):
     else:
         channel_name = f"DM from {channel.recipient.name}"
     return {
+        "created_at":str(message.created_at),
+        "raw_mentions":message.raw_mentions,
         "author_name":author.name,
+        "guild":message.guild.id,
         "channel_name": channel_name,
         "content":message.content,
         "author":author.id,
@@ -41,8 +59,8 @@ async def on_message(message):
     # print(formated_message)
 
     incomeing.append(formated_message)
-    with open(os.environ['INCOMEING_JSON'],'w') as f:
-        json.dump(incomeing,f)
+    # with open(os.environ['INCOMEING_JSON'],'w') as f:
+    #     json.dump(incomeing,f)
 
 
 start_discord()

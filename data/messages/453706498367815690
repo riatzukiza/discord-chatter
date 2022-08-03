@@ -1,1 +1,0 @@
-{"author":"439205512425504771","bot":true,"channel":"343299242963763200","content":"```py\n  File \"source_file.py\", line 1\n    getent passwd | cut -d':' -f1\n                ^\nSyntaxError: invalid syntax\n```","created":1528242458670,"id":"453706498367815690","server":"343179912196128792"}

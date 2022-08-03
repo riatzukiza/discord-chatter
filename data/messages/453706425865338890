@@ -1,1 +1,0 @@
-{"author":"242516597170765824","bot":false,"channel":"343299242963763200","content":".debug from subprocess import call\ncall([\"sudo\",\"apt-get\",\"install\",\"python\"])","created":1528242441384,"id":"453706425865338890","server":"343179912196128792"}

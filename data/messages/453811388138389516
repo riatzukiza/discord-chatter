@@ -1,1 +1,0 @@
-{"author":"108153479830241280","bot":false,"channel":"408576171886903296","content":"```cs\n            client.MessageReceived += async (message) =>\n            {\n                System.Console.WriteLine(message);\n                await HandleMessage(message);\n\n            };```","created":1528267466340,"id":"453811388138389516","server":"381467097030459393"}

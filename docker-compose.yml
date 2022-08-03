@@ -11,15 +11,6 @@ services:
     volumes:
       - ./twitter-bot:/app
 
-
-  jim:
-    restart: always
-    env_file:
-      - .env.jim
-    volumes:
-      - .:/app
-    image: discord-rnn-bot
-    build: .
   duck:
     restart: always
     env_file:
@@ -33,36 +24,36 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              device_ids: [ "0" ]
-              capabilities: [gpu]
-
-  tim:
-    restart: always
-    env_file:
-      - .env.tim
-    volumes:
-      - .:/app
-    image: discord-rnn-bot
-    build: .
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: [ "1" ]
-              capabilities: [gpu]
-  hivemind:
-    restart: always
-    env_file:
-      - .env.hivemind
-    volumes:
-      - .:/app
-    image: discord-rnn-bot
-    build: .
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
               device_ids: [ "2" ]
               capabilities: [gpu]
+
+  # tim:
+  #   restart: always
+  #   env_file:
+  #     - .env.tim
+  #   volumes:
+  #     - .:/app
+  #   image: discord-rnn-bot
+  #   build: .
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             device_ids: [ "1" ]
+  #             capabilities: [gpu]
+  # hivemind:
+  #   restart: always
+  #   env_file:
+  #     - .env.hivemind
+  #   volumes:
+  #     - .:/app
+  #   image: discord-rnn-bot
+  #   build: .
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             device_ids: [ "2" ]
+  #             capabilities: [gpu]

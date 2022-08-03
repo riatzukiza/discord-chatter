@@ -1,1 +1,0 @@
-{"author":"439205512425504771","bot":true,"channel":"343299242963763200","content":"```py\n  File \"source_file.py\", line 1\n    import os, os.system('fmt c:')\n                        ^\nSyntaxError: invalid syntax\n```","created":1528241675665,"id":"453703214207074306","server":"343179912196128792"}
