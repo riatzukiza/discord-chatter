@@ -2,6 +2,10 @@ from bot_src.main import start_discord, client, handle_replies
 from bot_src.threads import start_threads
 from bot_src.data import messages, labels
 from operator import itemgetter
+from bot_src.database import get_database
+db=get_database()
+
+message_collection=db[f'discord_messages']
 
 import asyncio
 
@@ -17,6 +21,8 @@ def formatMessage(message):
     else:
         channel_name = f"DM from {channel.recipient.name}"
     return {
+        "recipient":client.user.id,
+        "recipient_name":client.user.name,
         "created_at":str(message.created_at),
         "raw_mentions":message.raw_mentions,
         "author_name":author.name,
@@ -46,29 +52,13 @@ async def on_message(message):
 
     # guild,channel,channel_name,author,author_name = itemgetter('guild','channel','channel_name','author','author_name')(formated_message)
 
-    # print("message recieved")
-    # print(formated_message)
 
     if message.author.id == client.user.id:
         return
-    messages.append(json.dumps(formated_message, separators=(",",":")))
-    # labels.append(f"{author}.{author_name}.{channel}.{channel_name}.{guild}")
+    message_collection.insert_one({
+        **formated_message
+    })
 
-    # messages.append(json.dumps(formated_message, separators=(",",":")))
-    # labels.append(f"{author}")
-
-    # messages.append(json.dumps(formated_message, separators=(",",":")))
-    # labels.append(f"{channel}")
-
-    # messages.append(json.dumps(formated_message, separators=(",",":")))
-    # labels.append(f"{guild}")
-
-    # messages.append(json.dumps(formated_message, separators=(",",":")))
-    # labels.append(f"{channel_name}")
-
-    # messages.append(json.dumps(formated_message, separators=(",",":")))
-    # labels.append(f"{author_name}")
-    messages.save()
 
 
 

@@ -13,5 +13,7 @@ RUN  python3 -m pip install tensorflow-gpu
 RUN python3 -m pip install discord
 RUN python3 -m pip install sklearn
 
+RUN ln -s /opt/conda/lib/libcusolver.so.10 /opt/conda/lib/libcusolver.so.11
+
 
 CMD ["bash", "./start.sh"]
