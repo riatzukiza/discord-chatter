@@ -3,13 +3,14 @@
 version: "3.4"
 
 services:
-  twitter-bot:
-    restart: always
-    build: ./twitter-bot
-    env_file:
-      - ./twitter-bot/.env
-    volumes:
-      - ./twitter-bot:/app
+  # twitter-bot:
+  #   restart: always
+  #   build:
+  #     context: ./services/discord-twitter-bot/
+  #   env_file:
+  #     - ./services/discord-twitter-bot/.env
+  #   volumes:
+  #     - ./services/discord-twitter-bot:/app
 
 
   # jim:
@@ -20,49 +21,49 @@ services:
   #     - .:/app
   #   image: discord-rnn-bot
   #   build: .
-  duck:
+  duck-injestor:
     restart: always
     env_file:
       - .env.duck
+      - .env
     volumes:
-      - .:/app
-    image: discord-rnn-bot
-    build: .
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: [ "0" ]
-              capabilities: [gpu]
+      - ./services/discord-injestor:/app
+      - ./shared:/app/shared
+    build: ./services/discord-injestor
 
-  tim:
+  duck-message-generator:
     restart: always
     env_file:
-      - .env.tim
+      - .env.duck
+      - .env
     volumes:
-      - .:/app
-    image: discord-rnn-bot
-    build: .
+      - ./services/discord-message-generator:/app
+      - ./shared:/app/shared
+    build: ./services/discord-message-generator
+
+  # duck-message-dispatcher:
+  #   restart: always
+  #   env_file:
+  #     - .env.duck
+  #     - .env
+  #   volumes:
+  #     - ./services/discord-message-dispatcher:/app
+  #     - ./shared:/app/shared
+  #   build: ./services/discord-message-dispatcher
+
+  duck-model-trainer:
+    restart: always
+    env_file:
+      - .env.duck
+      - .env
+    volumes:
+      - ./services/model-trainer:/app
+      - ./shared:/app/shared
+    build: ./services/model-trainer
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
               device_ids: [ "2" ]
-              capabilities: [gpu]
-  hivemind:
-    restart: always
-    env_file:
-      - .env.hivemind
-    volumes:
-      - .:/app
-    image: discord-rnn-bot
-    build: .
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              device_ids: [ "1" ]
               capabilities: [gpu]

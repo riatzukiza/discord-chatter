@@ -22,4 +22,5 @@ RUN python -m pip install Django
 RUN ln -s /opt/conda/lib/libcusolver.so.10 /opt/conda/lib/libcusolver.so.11
 
 
-CMD ["bash", "./start.sh"]
+
+CMD ["python", "./main.py"]
