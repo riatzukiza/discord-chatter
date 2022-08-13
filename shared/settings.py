@@ -1,0 +1,28 @@
+import os
+
+TEXTGEN_NEW_MODEL=bool(os.environ.get('TEXTGEN_NEW_MODEL', False))
+TEXTGEN_VIA_NEW_MODEL=bool(os.environ.get('TEXTGEN_VIA_NEW_MODEL', False))
+# texts=get_messages_for_training(),
+TEXTGEN_TRAIN_SIZE=float(os.environ.get('TEXTGEN_TRAIN_SIZE',0.8))
+TEXTGEN_DROPOUT=float(os.environ.get('TEXTGEN_DROPOUT',0.1))
+TEXTGEN_BATCH_SIZE=int(os.environ.get('TEXTGEN_BATCH_SIZE', 1024))
+
+TEXTGEN_NUM_EPOCHS=int(os.environ.get("TEXTGEN_NUM_EPOCHS",5))
+TEXTGEN_BASE_LR=float(os.environ.get("TEXTGEN_BASE_LR",0.1))
+TEXTGEN_VERBOSE=int(os.environ.get('TEXTGEN_VERBOSE',2))
+
+MODEL_PATH=os.environ['MODEL_PATH']
+
+MIN_TEMP=float(os.environ.get('MIN_TEMP',0.5))
+MAX_TEMP=float(os.environ.get('MAX_TEMP',1.2))
+
+EXAMPLES_GENERATED_PER_BATCH=int(os.environ.get('EXAMPLES_GENERATED_PER_BATCH',10))
+MAX_GENERATED_LENGTH=int(os.environ.get('MAX_GENERATED_LENGTH', 4096))
+MODEL_NAME=os.environ['MODEL_NAME']
+
+MONGODB_HOST_NAME= os.environ['MONGODB_HOST_NAME']
+MONGODB_ADMIN_DATABASE_NAME=os.environ['MONGODB_ADMIN_DATABASE_NAME']
+MONGODB_ADMIN_USER_NAME=os.environ['MONGODB_ADMIN_USER_NAME']
+MONGODB_ADMIN_USER_PASSWORD=os.environ['MONGODB_ADMIN_USER_PASSWORD']
+
+DISCORD_TOKEN=os.environ['DISCORD_TOKEN']

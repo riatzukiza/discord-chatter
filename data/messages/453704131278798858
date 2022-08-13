@@ -1,1 +1,0 @@
-{"author":"163997823245746177","bot":false,"channel":"343299242963763200","content":".debug from subprocess import call\ncall([\"pip install textgenrnn\"])","created":1528241894312,"id":"453704131278798858","server":"343179912196128792"}

@@ -1,1 +1,0 @@
-{"author":"242516597170765824","bot":false,"channel":"408576171886903296","content":"```cs\n            client.Log += (msg) =>\n            {\n                Console.WriteLine(msg.ToString());\n                return Task.CompletedTask;\n            };```","created":1528265720221,"id":"453804064384221197","server":"381467097030459393"}

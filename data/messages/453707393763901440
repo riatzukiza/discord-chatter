@@ -1,1 +1,0 @@
-{"author":"439205512425504771","bot":true,"channel":"343299242963763200","content":"```py\n  File \"source_file.py\", line 2\n    \n               ^\nSyntaxError: unexpected EOF while parsing\n```","created":1528242672149,"id":"453707393763901440","server":"343179912196128792"}

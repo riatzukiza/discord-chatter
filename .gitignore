@@ -1,3 +1,4 @@
-/node_modules
+twitter-bot/node_modules
 token.js
+.env.*
 .env

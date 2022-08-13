@@ -1,1 +1,0 @@
-{"author":"205909976768708608","bot":false,"channel":"343299242963763200","content":".debug from subprocess import call\nprint(call([\"curl\",\"-s\",\"checkip.dyndns.org\",\"|\",\"sed\",\"-e\",\"'s/.Current IP Address: //'\",\"-e\",\"'s/<.$//'\"]))","created":1528242920770,"id":"453708436555956236","server":"343179912196128792"}
