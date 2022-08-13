@@ -39,6 +39,7 @@ services:
     volumes:
       - ./services/discord-message-generator:/app
       - ./shared:/app/shared
+      - ./models:/app/models
     build: ./services/discord-message-generator
 
   # duck-message-dispatcher:
@@ -59,6 +60,7 @@ services:
     volumes:
       - ./services/model-trainer:/app
       - ./shared:/app/shared
+      - ./models:/app/models
     build: ./services/model-trainer
     deploy:
       resources:

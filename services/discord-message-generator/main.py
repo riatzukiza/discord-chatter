@@ -11,11 +11,11 @@ from shared.mongodb import generated_message_collection
 import shared.settings as settings
 
 
-model=textgenrnn(settings.MODEL_PATH,name=settings.MODEL_NAME)
 
 def generate_batch(temp):
     # We load this model in to not conflict with anything happening in training.
     # This is the model as of now, training could finish and there is another model available
+    model=textgenrnn(settings.MODEL_PATH,name=settings.MODEL_NAME)
     return model.generate(
         max_gen_length=settings.MAX_GENERATED_LENGTH,
         progress=False,
@@ -33,6 +33,7 @@ while True:
     started=datetime.datetime.utcnow()
     batch=generate_batch(temp)
     finished=datetime.datetime.utcnow()
+    # print("batch complete",batch)
 
     for sample in batch:
         try:

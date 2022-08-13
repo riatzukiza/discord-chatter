@@ -16,5 +16,5 @@ if __name__ == "__main__":
     dbname = get_database()
 
 db=get_database()
-discord_message_collection=db[f'discord_messages']
-generated_message_collection=db[f'generated_messages']
+discord_message_collection=db['discord_messages']
+generated_message_collection=db['generated_messages']

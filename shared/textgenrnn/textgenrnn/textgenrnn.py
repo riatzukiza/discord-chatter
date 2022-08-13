@@ -204,7 +204,6 @@ class textgenrnn:
 
         # scheduler function must be defined inline.
         def lr_linear_decay(epoch):
-            print(base_lr)
             return (base_lr * (1 - (epoch / num_epochs)))
 
         '''
@@ -285,9 +284,9 @@ class textgenrnn:
                               callbacks=[
                                   LearningRateScheduler(
                                       lr_linear_decay),
-                                  # generate_after_epoch(
-                                  #     self, gen_epochs,
-                                  #     max_gen_length),
+                                  generate_after_epoch(
+                                      self, gen_epochs,
+                                      max_gen_length),
                                   save_model_weights(
                                       self, num_epochs,
                                       save_epochs)],
