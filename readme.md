@@ -76,8 +76,8 @@ but giving it the rest of the data gives it some additional context and makes th
 
 ```bash
 DISCORD_TOKEN=<very secret> 
-DEFAULT_CHANNEL=343299242963763200
-DISCORD_CLIENT_USER_ID=449279570445729793 # So I don't need to include the client just for an id
+DEFAULT_CHANNEL=<channel ID>
+DISCORD_CLIENT_USER_ID=<channel ID> # So I don't need to include the client just for an id
 DISCORD_CLIENT_USER_NAME=Duck
 
 # When generating text, how spicy do you want it to be?
