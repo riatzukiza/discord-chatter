@@ -5,9 +5,7 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from .utils import textgenrnn_encode_cat
 
 
-def generate_sequences_from_texts(texts, indices_list,
-                                  textgenrnn, context_labels,
-                                  batch_size=128):
+def generate_sequences_from_texts(texts, indices_list, textgenrnn, batch_size=128):
     is_words = textgenrnn.config['word_level']
     is_single = textgenrnn.config['single_text']
     max_length = textgenrnn.config['max_length']
@@ -49,12 +47,6 @@ def generate_sequences_from_texts(texts, indices_list,
                 X_batch.append(x)
                 Y_batch.append(y)
 
-                if context_labels is not None:
-                    try:
-                        context_batch.append(context_labels[text_index])
-                    except:
-                        pass
-
                 count_batch += 1
 
                 if count_batch % batch_size == 0:
@@ -62,12 +54,6 @@ def generate_sequences_from_texts(texts, indices_list,
                     Y_batch = np.squeeze(np.array(Y_batch))
                     context_batch = np.squeeze(np.array(context_batch))
 
-                    # print(X_batch.shape)
-
-                    if context_labels is not None:
-                        yield ([X_batch, context_batch], [Y_batch, Y_batch])
-                    else:
-                        yield (X_batch, Y_batch)
                     X_batch = []
                     Y_batch = []
                     context_batch = []
