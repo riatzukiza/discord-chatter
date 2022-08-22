@@ -8,19 +8,33 @@ import os
 import json
 import time
 
-DISCORD_CLIENT_USER_ID = os.environ.get('DISCORD_CLIENT_USER_ID')
+DISCORD_CLIENT_USER_ID = int(os.environ.get('DISCORD_CLIENT_USER_ID',0))
 DISCORD_CLIENT_USER_NAME = os.environ.get('DISCORD_CLIENT_USER_NAME')
 
-model=textgenrnn(settings.MODEL_PATH,name=settings.MODEL_NAME)
+model=textgenrnn(settings.MODEL_PATH,name=settings.MODEL_NAME,
+
+            dropout=settings.TEXTGEN_DROPOUT,
+            config={
+                'rnn_layers': settings.TEXTGEN_RNN_LAYERS,
+                'rnn_size': settings.TEXTGEN_RNN_SIZE,
+                'rnn_bidirectional': settings.TEXTGEN_RNN_BIDIRECTIONAL,
+                'max_length': settings.TEXTGEN_MAX_LENGTH,
+                'max_words': settings.TEXTGEN_MAX_WORDS,
+                'dim_embeddings': settings.TEXTGEN_DIM_EMBEDDINGS,
+                'word_level': settings.TEXTGEN_WORD_LEVEL,
+                'single_text': settings.TEXTGEN_SINGLE_TEXT
+            },
+                 )
 
 def get_messages_for_training():
     print("DISCORD_CLIENT_USER_ID:")
     print(DISCORD_CLIENT_USER_ID)
     print("DISCORD_CLIENT_USER_NAME:")
     print(DISCORD_CLIENT_USER_NAME)
-    results = discord_message_collection.find({
-        "recipient":DISCORD_CLIENT_USER_ID,
-    })
+    results = discord_message_collection.aggregate([
+        { "$match": { "recipient": int(DISCORD_CLIENT_USER_ID) } },
+        { "$sample": { "size": 1000 } },
+    ])
     training_data=[]
     for message in results:
         training_data.append(json.dumps({
@@ -47,12 +61,12 @@ while True:
         model.train_on_texts(
             texts=messages,
             train_size=settings.TEXTGEN_TRAIN_SIZE,
-            dropout=settings.TEXTGEN_DROPOUT,
             batch_size=settings.TEXTGEN_BATCH_SIZE,
             num_epochs=settings.TEXTGEN_NUM_EPOCHS,
             base_lr=settings.TEXTGEN_BASE_LR,
             verbose=settings.TEXTGEN_VERBOSE,
-            gen_epochs=int(os.environ.get('GEN_EPOCHS',10)))
+            gen_epochs=int(os.environ.get('GEN_EPOCHS',10))
+        )
 
     except Exception as e:
         print("An error was caught and this is what happened:")
