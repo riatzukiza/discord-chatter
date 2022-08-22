@@ -305,3 +305,41 @@ class save_model_weights(Callback):
                 "{}_weights_epoch_{}.hdf5".format(self.weights_name, epoch+1))
         else:
             self.textgenrnn.model.save_weights(self.weights_path)
+
+class LossHistory(keras.callbacks.Callback):
+    def __init__(self):
+        self.loss = None
+        self.loss_min = None
+        self.loss_max = None
+
+        self.val_loss = None
+        self.val_loss_min = None
+        self.val_loss_max = None
+
+    def on_train_begin(self, logs={}):
+        self.losses = []
+        self.losses_min = []
+
+    def on_epoch_end(self, epoch, logs={}):
+        self.loss = logs.get('loss')
+        self.val_loss = logs.get('val_loss')
+
+        if self.loss_min is not None:
+            self.loss_min = min(self.loss_min, self.loss)
+        else:
+            self.loss_min = self.loss
+
+        if self.loss_max is not None:
+            self.loss_max = max(self.loss_max, self.loss)
+        else:
+            self.loss_max = self.loss
+
+        if self.val_loss_min is not None:
+            self.val_loss_min = min(self.val_loss_min, self.val_loss)
+        else:
+            self.val_loss_min = self.val_loss
+
+        if self.val_loss_max is not None:
+            self.val_loss_max = max(self.val_loss_max, self.val_loss)
+        else:
+            self.val_loss_max = self.val_loss
