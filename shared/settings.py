@@ -1,15 +1,26 @@
 import os
 
+# parameters
 TEXTGEN_NEW_MODEL=bool(os.environ.get('TEXTGEN_NEW_MODEL', False))
 TEXTGEN_VIA_NEW_MODEL=bool(os.environ.get('TEXTGEN_VIA_NEW_MODEL', False))
-# texts=get_messages_for_training(),
+TEXTGEN_VERBOSE=int(os.environ.get('TEXTGEN_VERBOSE',2))
+
+# training settings
 TEXTGEN_TRAIN_SIZE=float(os.environ.get('TEXTGEN_TRAIN_SIZE',0.8))
 TEXTGEN_DROPOUT=float(os.environ.get('TEXTGEN_DROPOUT',0.1))
 TEXTGEN_BATCH_SIZE=int(os.environ.get('TEXTGEN_BATCH_SIZE', 1024))
-
 TEXTGEN_NUM_EPOCHS=int(os.environ.get("TEXTGEN_NUM_EPOCHS",5))
-TEXTGEN_BASE_LR=float(os.environ.get("TEXTGEN_BASE_LR",0.1))
-TEXTGEN_VERBOSE=int(os.environ.get('TEXTGEN_VERBOSE',2))
+TEXTGEN_BASE_LR=float(os.environ.get("TEXTGEN_BASE_LR",0.01))
+
+# Model structure
+TEXTGEN_RNN_LAYERS=int(os.environ.get('TEXTGEN_RNN_LAYERS',2))
+TEXTGEN_RNN_SIZE=int(os.environ.get('TEXTGEN_RNN_SIZE',128))
+TEXTGEN_RNN_BIDIRECTIONAL=bool(os.environ.get('TEXTGEN_RNN_BIDIRECTIONAL',False))
+TEXTGEN_MAX_LENGTH=int(os.environ.get('TEXTGEN_MAX_LENGTH',40))
+TEXTGEN_MAX_WORDS=int(os.environ.get('TEXTGEN_MAX_WORDS',10000))
+TEXTGEN_DIM_EMBEDDINGS=int(os.environ.get('TEXTGEN_DIM_EMBEDDINGS',100))
+TEXTGEN_WORD_LEVEL=bool(os.environ.get('TEXTGEN_WORD_LEVEL',False))
+TEXTGEN_SINGLE_TEXT=bool(os.environ.get('TEXTGEN_SINGLE_TEXT',False))
 
 MODEL_PATH=os.environ['MODEL_PATH']
 
