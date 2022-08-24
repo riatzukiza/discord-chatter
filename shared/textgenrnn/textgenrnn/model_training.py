@@ -53,6 +53,7 @@ def generate_sequences_from_texts(texts, indices_list, textgenrnn, batch_size=12
                     X_batch = np.squeeze(np.array(X_batch))
                     Y_batch = np.squeeze(np.array(Y_batch))
                     context_batch = np.squeeze(np.array(context_batch))
+                    yield (X_batch, Y_batch)
 
                     X_batch = []
                     Y_batch = []

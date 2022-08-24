@@ -42,20 +42,21 @@ def textgenrnn_sample(preds, temperature, interactive=False, top_n=3):
     return index
 
 
-def textgenrnn_generate(model, vocab,
-                        indices_char, temperature=0.5,
-                        maxlen=40, meta_token='<s>',
+def textgenrnn_generate(model,
+                        vocab,
+                        indices_char,
+                        temperature=0.5,
+                        maxlen=40,
+                        meta_token='<s>',
                         max_gen_length=300,
-                        prefix=''):
+                        prefix=''
+                        ):
     '''
     Generates and returns a single text.
     '''
 
     collapse_char = ''
     end = False
-
-    # If generating word level, must add spaces around each punctuation.
-    # https://stackoverflow.com/a/3645946/9314418
 
     prefix_t = list(prefix)
 
@@ -67,20 +68,19 @@ def textgenrnn_generate(model, vocab,
     if len(model.inputs) > 1:
         model = Model(inputs=model.inputs[0], outputs=model.outputs[1])
     while not end and len(text) < max_gen_length:
-        encoded_text = textgenrnn_encode_sequence(text[-maxlen:],
-                                                  vocab, maxlen)
+        encoded_text = textgenrnn_encode_sequence(text[-maxlen:], vocab, maxlen)
         next_temperature = temperature[(len(text) - 1) % len(temperature)]
 
         # auto-generate text without user intervention
         next_index = textgenrnn_sample(
             model.predict(encoded_text, verbose=0, batch_size=1)[0],
-            next_temperature)
+            next_temperature
+        )
         next_char = indices_char[next_index]
         text += [next_char]
         if next_char == meta_token or len(text) >= max_gen_length:
             end = True
-    # if single text, ignore sequences generated w/ padding
-    # if not single text, remove the <s> meta_tokens
+    text = text[1:]
     if meta_token in text:
         text.remove(meta_token)
 
@@ -99,48 +99,6 @@ def textgenrnn_encode_sequence(text, vocab, maxlen):
     encoded = np.array([vocab.get(x, 0) for x in text])
     return sequence.pad_sequences([encoded], maxlen=maxlen)
 
-
-def textgenrnn_texts_from_file(file_path, header=True,
-                               delim='\n', is_csv=False):
-    '''
-    Retrieves texts from a newline-delimited file and returns as a list.
-    '''
-
-    with open(file_path, 'r', encoding='utf8', errors='ignore') as f:
-        if header:
-            f.readline()
-        if is_csv:
-            texts = []
-            reader = csv.reader(f)
-            for row in reader:
-                if row:
-                    texts.append(row[0])
-        else:
-            text_data = f.read()
-            texts = text_data.split(delim)
-
-    return texts
-
-
-def textgenrnn_texts_from_file_context(file_path, header=True):
-    '''
-    Retrieves texts+context from a two-column CSV.
-    '''
-
-    with open(file_path, 'r', encoding='utf8', errors='ignore') as f:
-        if header:
-            f.readline()
-        texts = []
-        context_labels = []
-        reader = csv.reader(f)
-        for row in reader:
-            if row:
-                texts.append(row[0])
-                context_labels.append(row[1])
-
-    return (texts, context_labels)
-
-
 def textgenrnn_encode_cat(chars, vocab):
     '''
     One-hot encodes values at given chars efficiently by preallocating
@@ -156,7 +114,7 @@ def textgenrnn_encode_cat(chars, vocab):
 
 def synthesize(textgens, n=1, return_as_list=False, prefix='',
                temperature=[0.5, 0.2, 0.2], max_gen_length=300,
-               progress=True, stop_tokens=[' ', '\n']):
+               stop_tokens=[' ', '\n']):
     """Synthesizes texts using an ensemble of input models.
     """
 
@@ -169,19 +127,17 @@ def synthesize(textgens, n=1, return_as_list=False, prefix='',
         textgen_i = 0
         while not end:
             textgen = textgens[textgen_i % len(textgens)]
-            gen_text, end = textgenrnn_generate(textgen.model,
-                                                textgen.vocab,
-                                                textgen.indices_char,
-                                                temperature,
-                                                textgen.config['max_length'],
-                                                textgen.META_TOKEN,
-                                                textgen.config['word_level'],
-                                                textgen.config.get(
-                                                    'single_text', False),
-                                                max_gen_length,
-                                                prefix=gen_text,
-                                                synthesize=True,
-                                                stop_tokens=stop_tokens)
+            gen_text, end = textgenrnn_generate(
+                textgen.model,
+                textgen.vocab,
+                textgen.indices_char,
+                temperature,
+                textgen.config['max_length'],
+                textgen.META_TOKEN,
+                max_gen_length,
+                prefix=gen_text
+            )
+
             textgen_i += 1
         if not return_as_list:
             print("{}\n".format(gen_text))
@@ -206,8 +162,7 @@ class generate_after_epoch(Callback):
 
     def on_epoch_end(self, epoch, logs={}):
         if self.gen_epochs > 0 and (epoch+1) % self.gen_epochs == 0:
-            self.textgenrnn.generate_samples(
-                max_gen_length=self.max_gen_length)
+            self.textgenrnn.generate_samples()
 
 
 class save_model_weights(Callback):

@@ -42,34 +42,55 @@ class textgenrnn:
     }
     default_config = config.copy()
 
-    def __init__(self, weights_path=None,
+    def __init__(self,
+                 weights_path=None,
                  vocab_path=None,
+                 train_size=0.8,
+                 batch_size=32 ,
+                 base_lr=0.001,
+                 verbose=0,
+                 gen_epochs=10,
+                 num_epochs=10,
+                 max_gen_length=300,
                  dropout=0.0,
                  config=None,
+                 save_epochs=1,
+                 validation=True,
                  name="textgenrnn",
                  allow_growth=None):
 
+        self.gen_val = None
+        self.val_steps = None
+        self.validation = validation
+        self.save_epochs = save_epochs
+        self.max_gen_length = max_gen_length
+        self.train_size = train_size
+        self.batch_size = batch_size
+        self.base_lr = base_lr
+        self.verbose = verbose
+        self.gen_epochs = gen_epochs
+        self.num_epochs = num_epochs
+        self.dropout = dropout
         self.loss_history = LossHistory()
+        self.allow_growth = allow_growth
+
         if weights_path is None: weights_path = resource_filename(__name__, 'textgenrnn_weights.hdf5')
         self.weights_path = weights_path
 
-        if vocab_path is None: vocab_path = resource_filename(__name__, 'textgenrnn_vocab.json')
-        self.vocab_path = vocab_path
+        if vocab_path is None: self.vocab_path = resource_filename(__name__, 'textgenrnn_vocab.json')
+        print(f"vocab path {self.vocab_path}")
 
-        if allow_growth is not None:
+        if self.allow_growth is not None:
             c = tf.compat.v1.ConfigProto()
             c.gpu_options.allow_growth = True
             set_session(tf.compat.v1.Session(config=c))
 
-        elif config is not None:
-            self.config = config
-        print(self.config)
+        if config is not None: self.config = config
 
         self.config.update({'name': name})
         self.default_config.update({'name': name})
 
-        with open(vocab_path, 'r',
-                  encoding='utf8', errors='ignore') as json_file:
+        with open(self.vocab_path, 'r', encoding='utf8', errors='ignore') as json_file:
             self.vocab = json.load(json_file)
 
         self.tokenizer = Tokenizer(filters='', lower=False, char_level=True)
@@ -79,14 +100,12 @@ class textgenrnn:
         self.model = textgenrnn_model(
             self.num_classes,
             cfg=self.config,
-            weights_path=weights_path
+            dropout=self.dropout,
+            weights_path=self.weights_path
         )
         self.indices_char = dict((self.vocab[c], c) for c in self.vocab)
 
-    def generate(self, n=1, return_as_list=False, prefix='',
-                 temperature=[1.0, 0.5, 0.2, 0.2],
-                 max_gen_length=300, interactive=False,
-                 top_n=3, progress=True):
+    def generate(self, n=1, return_as_list=False, prefix='', temperature=[1.0, 0.5, 0.2, 0.2], progress=True):
         gen_texts = []
         iterable = tqdm.trange(n) if progress and n > 1 else range(n)
         for _ in iterable:
@@ -97,7 +116,7 @@ class textgenrnn:
                 temperature,
                 self.config['max_length'],
                 self.META_TOKEN,
-                max_gen_length,
+                self.max_gen_length,
                 prefix)
             if not return_as_list:
                 print("{}\n".format(gen_text))
@@ -111,38 +130,45 @@ class textgenrnn:
                   '#'*20)
             self.generate(n, temperature=temperature, progress=False, **kwargs)
 
-    def generate_indicies_list(self,texts, train_size=0.8, batch_size=32):
+    def generate_indicies_list(self,texts):
 
         # calculate all combinations of text indices + token indices
         self.indices_list = [np.meshgrid(np.array(i), np.arange(len(text) + 1)) for i, text in enumerate(texts)]
-        # indices_list = np.block(indices_list) # this hangs when indices_list is large enough
-        # FIX BEGIN ------
-        indices_list_o = np.block(self.indices_list[0])
+        # self.indices_list = np.block(self.indices_list) # this hangs when indices_list is large enough
+        self.indices_list_o = np.block(self.indices_list[0])
         for i in range(len(self.indices_list)-1):
             tmp = np.block(self.indices_list[i+1])
-            indices_list_o = np.concatenate([indices_list_o, tmp])
-        self.indices_list = indices_list_o
-
-        self.indices_mask = np.random.rand(self.indices_list.shape[0]) < train_size
+            self.indices_list_o = np.concatenate([self.indices_list_o, tmp])
+        self.indices_list = self.indices_list_o
 
 
-        self.indices_list = self.indices_list[self.indices_mask, :]
+        indices_mask = np.random.rand(self.indices_list.shape[0]) < self.train_size
+        self.indices_list = self.indices_list[indices_mask, :]
 
         self.num_tokens = self.indices_list.shape[0]
-        assert self.num_tokens >= batch_size, "Fewer tokens than batch_size."
+        assert self.num_tokens >= self.batch_size, "Fewer tokens than batch_size."
 
-        level = 'word' if self.config['word_level'] else 'character'
-        print("Training on {:,} {} sequences.".format(self.num_tokens, level))
-        return self.indices_list
+        print("Training on {:,} {} sequences.".format(self.num_tokens, "Character level"))
 
-    def get_learning_rate(self, epoch, base_lr):
+        if self.train_size < 1.0 and self.validation:
+            indices_mask = np.random.rand(self.indices_list.shape[0]) < self.train_size
+            self.indices_list_val = self.indices_list[~indices_mask, :]
+            self.val_steps = max(int(np.floor(self.indices_list_val.shape[0] / self.batch_size)), 1)
+            self.gen_val = generate_sequences_from_texts(
+                texts,
+                self.indices_list_val,
+                self,
+                self.batch_size
+            )
+
+    def get_learning_rate(self):
         """
         Learning rate is a function of the history
         """
         if self.loss_history is not None and self.loss_history.loss:
             return (
                 self.loss_history.loss *
-                base_lr *
+                self.base_lr *
                 self.loss_history.loss_max *
                 self.loss_history.loss_min *
                 self.loss_history.val_loss *
@@ -150,49 +176,35 @@ class textgenrnn:
                 self.loss_history.val_loss_max
             )
         else:
-            return base_lr
+            return self.base_lr
 
-    def train_on_texts(self, texts,
-                       batch_size=128,
-                       num_epochs=50,
-                       verbose=1,
-                       gen_epochs=1,
-                       train_size=1.0,
-                       max_gen_length=300,
-                       validation=True,
-                       base_lr=4e-3,
-                       save_epochs=0,
-                       **kwargs):
+    def train_on_texts(self, texts):
 
-        gen_val = None
-        val_steps = None
-        indices_list = self.generate_indicies_list(texts, train_size=train_size, **kwargs)
-        if train_size < 1.0 and validation:
-            indices_list_val = indices_list[~self.indices_mask, :]
-            val_steps = max(int(np.floor(indices_list_val.shape[0] / batch_size)), 1)
-            gen_val = generate_sequences_from_texts(
-                texts,
-                indices_list_val,
-                self,
-                batch_size
-            )
-        self.model.compile(loss='categorical_crossentropy', optimizer=Adam(lr=base_lr))
-        steps_per_epoch = max(int(np.floor(self.num_tokens / batch_size)), 1)
-        gen = generate_sequences_from_texts(texts, indices_list, self, batch_size)
+        self.generate_indicies_list(texts )
+        self.model.compile(
+            loss='categorical_crossentropy',
+            optimizer=Adam(lr=self.base_lr)
+        )
+
+        steps_per_epoch = max(int(np.floor(self.num_tokens / self.batch_size)), 1)
+        gen = generate_sequences_from_texts(texts, self.indices_list, self, self.batch_size)
+
+        def learn_from_history(epoch): return self.get_learning_rate()
+
         self.model.fit(
             gen,
             steps_per_epoch=steps_per_epoch,
-            epochs=num_epochs,
+            epochs=self.num_epochs,
             callbacks=[
                 self.loss_history,
                 LearningRateScheduler(learn_from_history),
-                generate_after_epoch(self, gen_epochs, max_gen_length),
-                save_model_weights(self, num_epochs, save_epochs)
+                generate_after_epoch(self, self.gen_epochs, self.max_gen_length),
+                save_model_weights(self, self.num_epochs, self.save_epochs)
             ],
-            verbose=verbose,
+            verbose=self.verbose,
             max_queue_size=10,
-            validation_data=gen_val,
-            validation_steps=val_steps
+            validation_data=self.gen_val,
+            validation_steps=self.val_steps
         )
 
 
@@ -207,41 +219,6 @@ class textgenrnn:
     def reset(self):
         self.config = self.default_config.copy()
         self.__init__(name=self.config['name'])
-
-    def train_from_file(self, file_path, header=True, delim="\n",
-                        new_model=False, context=None,
-                        is_csv=False, **kwargs):
-
-        context_labels = None
-        if context:
-            texts, context_labels = textgenrnn_texts_from_file_context(
-                file_path)
-        else:
-            texts = textgenrnn_texts_from_file(file_path, header,
-                                               delim, is_csv)
-
-        print("{:,} texts collected.".format(len(texts)))
-        if new_model:
-            self.train_new_model(
-                texts, context_labels=context_labels, **kwargs)
-        else:
-            self.train_on_texts(texts, context_labels=context_labels, **kwargs)
-
-    def train_from_largetext_file(self, file_path, new_model=True, **kwargs):
-        with open(file_path, 'r', encoding='utf8', errors='ignore') as f:
-            texts = [f.read()]
-
-        if new_model:
-            self.train_new_model(
-                texts, single_text=True, **kwargs)
-        else:
-            self.train_on_texts(texts, single_text=True, **kwargs)
-
-    def generate_to_file(self, destination_path, **kwargs):
-        texts = self.generate(return_as_list=True, **kwargs)
-        with open(destination_path, 'w', encoding="utf-8") as f:
-            for text in texts:
-                f.write("{}\n".format(text))
 
     def encode_text_vectors(self, texts, pca_dims=50, tsne_dims=None,
                             tsne_seed=None, return_pca=False,

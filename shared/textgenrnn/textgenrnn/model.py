@@ -7,7 +7,7 @@ from tensorflow import config as config
 from .AttentionWeightedAverage import AttentionWeightedAverage
 
 
-def textgenrnn_model(num_classes, cfg, context_size=None,
+def textgenrnn_model(num_classes, cfg,
                      weights_path=None,
                      dropout=0.0,
                      optimizer=Adam(lr=4e-3)):
@@ -33,32 +33,13 @@ def textgenrnn_model(num_classes, cfg, context_size=None,
     attention = AttentionWeightedAverage(name='attention')(seq_concat)
     output = Dense(num_classes, name='output', activation='softmax')(attention)
 
-    if context_size is None:
-        model = Model(inputs=[input], outputs=[output])
-        try:
-            if weights_path is not None:
-                model.load_weights(weights_path, by_name=True)
-        except:
-            pass
-        model.compile(loss='categorical_crossentropy', optimizer=optimizer)
-
-
-    else:
-        context_input = Input(
-            shape=(context_size,), name='context_input')
-        context_reshape = Reshape((context_size,),
-                                  name='context_reshape')(context_input)
-        merged = concatenate([attention, context_reshape], name='concat')
-        main_output = Dense(num_classes, name='context_output',
-                            activation='softmax')(merged)
-
-        model = Model(inputs=[input, context_input],
-                      outputs=[main_output, output])
+    model = Model(inputs=[input], outputs=[output])
+    try:
         if weights_path is not None:
             model.load_weights(weights_path, by_name=True)
-        model.compile(loss='categorical_crossentropy', optimizer=optimizer,
-                      loss_weights=[0.8, 0.2])
-
+    except:
+        pass
+    model.compile(loss='categorical_crossentropy', optimizer=optimizer)
     return model
 
 
