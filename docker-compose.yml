@@ -21,6 +21,17 @@ services:
   #     - .:/app
   #   image: discord-rnn-bot
   #   build: .
+
+  duck-image-injestor:
+    restart: always
+    env_file:
+      - .env.duck
+      - .env
+    volumes:
+      - ./services/image-injestor:/app
+      - ./shared:/app/shared
+    build: ./services/image-injestor
+
   duck-indexer:
     restart: always
     env_file:
@@ -42,14 +53,14 @@ services:
       - ./models:/app/models
     build: ./services/discord-message-generator
 
-  duck-message-generator_1: 
-    <<: *message-generator
+  # duck-message-generator_1: 
+  #   <<: *message-generator
 
-  duck-message-generator_2: 
-    <<: *message-generator
+  # duck-message-generator_2: 
+  #   <<: *message-generator
 
-  duck-message-generator_3: 
-    <<: *message-generator
+  # duck-message-generator_3: 
+  #   <<: *message-generator
 
   duck-message-dispatcher:
     restart: always

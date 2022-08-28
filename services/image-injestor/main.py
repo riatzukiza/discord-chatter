@@ -1,28 +1,18 @@
 """
-Crawl through discord history and fill in all messages that are not getting processed in real time.
+Extract all image attachments from all discord channel's history and base 64 encode them.
+Save the base 64 encoded images a mongodb collection
 """
-
 import asyncio
-import traceback
-from typing import List
 import discord
-from shared import settings
-from shared.discord import format_message
-from shared.mongodb import discord_message_collection, discord_channel_collection
+import traceback
+import io
 
+from shared.mongodb import discord_message_collection, discord_channel_collection
+import shared.settings as settings
+from shared.images import get_image_bitmap, base_64_encode_bitmap
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
-
-def setup_channel(channel_id) -> None:
-    """
-    Setup a channel for indexing.
-    """
-    print(f"Setting up channel {channel_id}")
-    discord_channel_collection.insert_one({
-        "id": channel_id,
-        "cursor": None
-    })
 
 
 def update_cursor(message: discord.Message) -> None:
@@ -32,20 +22,18 @@ def update_cursor(message: discord.Message) -> None:
     print(f"Updating cursor for channel {message.channel.id} to {message.id}")
     discord_channel_collection.update_one(
         { "id": message.channel.id }, 
-        { "$set": {"cursor": message.id} }
+        { "$set": {"image_cursor": message.id} }
     )
 
-def index_message(message: discord.Message) -> None:
+def setup_channel(channel_id) -> None:
     """
-    Index a message only if it has not already been added to mongo.
+    Setup a channel for indexing.
     """
-    message_record = discord_message_collection.find_one({"id": message.id})
-    if message_record is None:
-        print(f"Indexing message {message.id} {message.content}")
-        discord_message_collection.insert_one(format_message(message))
-    else:
-        print(f"Message {message.id} already indexed")
-        print(message_record)
+    print(f"Setting up channel {channel_id}")
+    discord_channel_collection.insert_one({
+        "id": channel_id,
+        "image_cursor": None
+    })
 
 def find_channel_record(channel_id): 
     """
@@ -62,18 +50,31 @@ def find_channel_record(channel_id):
     print(f"Channel record: {record}")
     return record
 
-async def next_messages(channel: discord.TextChannel) -> List[discord.Message]:
+async def get_image_attachments(message):
+    """
+    Get all image attachments from a discord message
+    """
+    image_attachments=[]
+    for attachment in message.attachments:
+        if attachment.filename.endswith('.png') or attachment.filename.endswith('.jpg'):
+            file_like=io.BytesIO(await attachment.read())
+            image_attachments.append(base_64_encode_bitmap(get_image_bitmap(file_like)))
+    return image_attachments
+
+
+
+async def next_messages(channel: discord.TextChannel):
     """
     Get the next batch of messages in a channel.
     """
     channel_record = find_channel_record(channel.id)
-    print  (f"Cursor: {channel_record['cursor']}")
+    print  (f"Cursor: {channel_record.get('image_cursor', None)}")
     print(f"Getting history for {channel_record}")
 
     if not channel_record.get('is_valid', True):
         print(f"Channel {channel_record['id']} is not valid")
         return []
-    if channel_record["cursor"] is None:
+    if channel_record.get("image_cursor",None) is None:
         print(f"No cursor found for {channel_record['id']}")
         try:
             return [message async for message in channel.history(limit=200, oldest_first=True)]
@@ -84,13 +85,13 @@ async def next_messages(channel: discord.TextChannel) -> List[discord.Message]:
             discord_channel_collection.update_one({"id": channel_record['id']},{"$set":{"is_valid":False}})
             return []
     else:
-        print(f"Cursor found for {channel} {channel_record['cursor']}")
+        print(f"Cursor found for {channel} {channel_record['image_cursor']}")
         try:
-            return [message async for message in channel.history(
-                limit=200,
-                oldest_first=True,
-                after=channel.get_partial_message(channel_record["cursor"])
-            )]
+            return [message async for message in channel.history(limit=200,
+                                                                 oldest_first=True,
+                                                                 after=channel.get_partial_message(
+                                                                     channel_record.get('image_cursor', None)
+                                                                 ))]
         except AttributeError as e:
             print(f"Attribute error for {channel.id}")
             print(e)
@@ -105,23 +106,25 @@ async def index_channel(channel: discord.TextChannel) -> None:
     for message in await next_messages(channel):
         await asyncio.sleep(0.1)
         newest_message = message
-        index_message(message)
+        await index_message(message)
     if newest_message is not None:
         update_cursor(newest_message)
     print(f"Newest message: {newest_message}")
 
-def shuffle_array(array):
+async def index_message(message: discord.Message) -> None:
     """
-    Shuffle an array.
+    Index a message only if it has not already been added to mongo.
     """
-    import random
-    random.shuffle(array)
-    return array
+    message_record = discord_message_collection.find_one({"id": message.id})
+    if message_record is not None:
+        print(f"Indexing message {message.id} {message.content}")
+        discord_message_collection.update_one({"id": message.id},
+                                              {"$set":{"attachments": await get_image_attachments(message)}})
 
 @client.event
 async def on_ready():
     while True:
-        for channel in shuffle_array(client.get_all_channels()):
+        for channel in client.get_all_channels():
             try:
                 if isinstance(channel, discord.TextChannel):
                     print(f"Indexing channel {channel}")

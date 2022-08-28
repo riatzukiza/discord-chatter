@@ -1,20 +1,11 @@
 """It is where we define the model stuff"""
 from shared.textgenrnn.textgenrnn import textgenrnn
-from shared.mongodb import get_database
+from shared.mongodb import discord_channel_collection, discord_message_collection
+
 import shared.settings as settings
-from  discord.ext.commands import Bot
+import discord
 
-import os
 import json
-import time
-
-db=get_database()
-discord_message_collection=db['discord_messages']
-
-generated_message_collection=db['generated_messages']
-discord_channel_collection=db['discord_channels']
-discord_user_collection=db['discord_users']
-discord_server_collection=db['discord_servers']
 
 model=textgenrnn(
     settings.MODEL_PATH,name=settings.MODEL_NAME,
@@ -53,12 +44,12 @@ def extract_urls_from_string(string):
 def remove_url_from_string(string):
     return " ".join(word for word in string.split() if not word.startswith("http"))
 
-def extract_parts_of_speech(string):
-    """
-    Tokenize and extract part of speech using NLTK library
-    """
-    from nltk import word_tokenize, pos_tag
-    return pos_tag(word_tokenize(string))
+# def extract_parts_of_speech(string):
+#     """
+#     Tokenize and extract part of speech using NLTK library
+#     """
+#     from nltk import word_tokenize, pos_tag
+#     return pos_tag(word_tokenize(string))
 
 def encode_sample(message, channels, channel_names):
     return {
@@ -73,7 +64,15 @@ def encode_sample(message, channels, channel_names):
         "channel_name": message['channel_name'],
         "original_content":message['content'],
         "urls":extract_urls_from_string(message['content']),
-        "content":remove_hashtag_from_string(remove_mention_from_string(remove_url_from_string(message['content']))),
+        "content":remove_hashtag_from_string(
+            remove_mention_from_string(
+                remove_url_from_string(
+                    message['content']
+                )
+            )
+        ),
+        # "parts_of_speech":extract_parts_of_speech(message['content']),
+        # "attachments":message.get('attachments',[]),
         "author":message['author'],
         # "channels":channels,
         # "channel_names":channel_names,
@@ -83,11 +82,11 @@ def encode_sample(message, channels, channel_names):
 def get_messages_for_training():
     print({ "recipient":settings.DISCORD_CLIENT_USER_ID })
     results = discord_message_collection.aggregate([
-        { "$match": { 
-            "channel_name":"duck-fun",
-            "recipient":settings.DISCORD_CLIENT_USER_ID } },
-        { "$sample": { "size": 10000 } },
-    ])
+        { "$match": { "recipient":settings.DISCORD_CLIENT_USER_ID,
+                        "author":{"$nin":[settings.DISCORD_CLIENT_USER_ID]}
+                     } },
+        {"$sample":{"size":100}},
+    ], allowDiskUse=True)
     # Collect all channels first
     channels = []
     channel_names = []
@@ -101,22 +100,24 @@ def get_messages_for_training():
 
 
     for message in messages:
-        training_data.append(json.dumps(encode_sample(message, channels, channel_names) ,
-                                        separators=(",",":")))
+        training_data.append(json.dumps(
+            encode_sample(message, channels, channel_names) , separators=(",",":")))
     return training_data
 
 while True:
-    print("getting training data")
-    messages=get_messages_for_training()
-    if not messages:
-        time.sleep(10)
-        continue
+#     print("getting training data")
+#     channels=discord_channel_collection.find({})
     try:
-        model.train_on_texts(
-            texts=messages,
-        )
-        print("model trained")
-
+#         for channel in channels:
+#             print("training channel",channel)
+        messages=get_messages_for_training()
+        if messages:
+            model.train_on_texts(
+                texts=messages,
+            )
+        else:
+            print("no messages to train on")
+            continue
     except Exception as e:
         print("An error was caught and this is what happened:")
         __import__('traceback').print_exc()

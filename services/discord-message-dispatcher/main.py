@@ -4,6 +4,7 @@ import discord
 import json
 
 from shared.mongodb import discord_message_collection, generated_message_collection
+from shared.images import base_64_decode_bitmap
 
 import shared.settings as settings
 intents = discord.Intents.default()
@@ -34,6 +35,8 @@ async def on_ready():
 #     print(message_data)
     # discord_message_collection.insert_one(message_data)
 
+def decode_attachments(attachments):
+    return [discord.File(base_64_decode_bitmap(attachment),"image.png") for attachment in attachments]
 
 async def handle_generated_messages():
     unsent_messages = generated_message_collection.find({"sent":False, "is_valid":True})
@@ -51,7 +54,8 @@ async def handle_generated_messages():
             print(channel.name)
 
             generated_message_collection.update_one({"_id":message['_id']},{"$set":{"sent":True}})
-            await channel.send(sample_data['content'])
+            attachments=decode_attachments(sample_data.get('attachments',[]))
+            await channel.send(sample_data['content'], files=attachments)
         except Exception as e:
             print(e)
             generated_message_collection.update_one({"_id":message['_id']},{"$set":{"is_valid":False,"sent":False}})
