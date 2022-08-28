@@ -19,6 +19,7 @@ RUN python -m pip install pymongo
 RUN python -m pip install dnspython
 RUN python -m pip install pandas
 RUN python -m pip install Django
+RUN python -m pip install pillow
 
 RUN ln -s /opt/conda/lib/libcusolver.so.10 /opt/conda/lib/libcusolver.so.11
 

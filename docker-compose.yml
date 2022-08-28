@@ -21,17 +21,28 @@ services:
   #     - .:/app
   #   image: discord-rnn-bot
   #   build: .
-  duck-injestor:
+
+  duck-image-injestor:
     restart: always
     env_file:
       - .env.duck
       - .env
     volumes:
-      - ./services/discord-injestor:/app
+      - ./services/image-injestor:/app
       - ./shared:/app/shared
-    build: ./services/discord-injestor
+    build: ./services/image-injestor
 
-  duck-message-generator:
+  duck-indexer:
+    restart: always
+    env_file:
+      - .env.duck
+      - .env
+    volumes:
+      - ./services/discord-indexer:/app
+      - ./shared:/app/shared
+    build: ./services/discord-indexer
+
+  duck-message-generator_0: &message-generator
     restart: always
     env_file:
       - .env.duck
@@ -42,15 +53,24 @@ services:
       - ./models:/app/models
     build: ./services/discord-message-generator
 
-  # duck-message-dispatcher:
-  #   restart: always
-  #   env_file:
-  #     - .env.duck
-  #     - .env
-  #   volumes:
-  #     - ./services/discord-message-dispatcher:/app
-  #     - ./shared:/app/shared
-  #   build: ./services/discord-message-dispatcher
+  # duck-message-generator_1: 
+  #   <<: *message-generator
+
+  # duck-message-generator_2: 
+  #   <<: *message-generator
+
+  # duck-message-generator_3: 
+  #   <<: *message-generator
+
+  duck-message-dispatcher:
+    restart: always
+    env_file:
+      - .env.duck
+      - .env
+    volumes:
+      - ./services/discord-message-dispatcher:/app
+      - ./shared:/app/shared
+    build: ./services/discord-message-dispatcher
 
   duck-model-trainer:
     restart: always
@@ -67,5 +87,5 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              device_ids: [ "2" ]
+              device_ids: [ "0" ]
               capabilities: [gpu]

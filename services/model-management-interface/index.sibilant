@@ -1,0 +1,60 @@
+(include "@kit-js/core/header")
+(include "@kit-js/async/header")
+
+(include "@kit-js/html/header")
+
+
+(import-namespace markup)
+(import-namespace kit)
+
+(require! 'express)
+
+(require! 'mongoose 'express)
+
+(var dotenv (require 'dotenv))
+(.config dotenv)
+
+
+(include "../../macros.sibilant")
+(async-block
+
+ ;; (await (import "../../modules/global.mjs"))
+ (const app (express))
+ (const (lit connection-string) (await (import "./settings.mjs")))
+ ;; (const TW (await (import "../../modules/twitter/index.mjs")))
+ (await (.catch (mongoose.connect connection-string
+                                  { ssl: true,
+                                    use-new-url-parser : true,
+                                    use-unified-topology : true})
+                (=> (err) console.error(("ERROR: " err.message)))))
+
+
+ (var hello (markup (.div .id "hello-container" "hi there!")))
+ (def-async get-latest-tweets (req res)
+            (const (lit Twitter-users Tweets) (await (import "../../modules/models/twitter.mjs")))
+            (const (lit page limit) req.query)
+            (const tweet-count (await (Tweets.count)))
+            ;; (const skip (* (- (or page 1) 1)
+            ;;                (or (parse-int limit 10) 10)))
+
+
+            (const tweets (await (pipe (Tweets.find {})
+                                       (.skip (- tweet-count limit))
+                                       ;; (.sort  {tw_id 1})
+                                       ;; (.limit (or (parse-int limit 10) 10))
+                                       )))
+            (print tweets)
+
+            (with-markup-to-stream
+             res
+             (.html (.script '(async-block
+
+                               (set-timeout (-> (.reload window.location)) 10000)))
+                    (.body (.div "There have been" tweet-count "tweets since this database was created")
+                           (map tweets (tweet) (markup
+                                                (.div (pipe (Twitter-users.find-one {_id:tweet.postedby} )
+                                                            (.then (=> (author) author.screen_name))) " : "(or tweet.full_text tweet.text ))))))))
+
+ (.get app "/tweets" get-latest-tweets)
+
+ (.listen app 8082 (=> () (print "listening"))))

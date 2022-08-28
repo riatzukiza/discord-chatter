@@ -17,4 +17,8 @@ if __name__ == "__main__":
 
 db=get_database()
 discord_message_collection=db['discord_messages']
+
 generated_message_collection=db['generated_messages']
+discord_channel_collection=db['discord_channels']
+discord_user_collection=db['discord_users']
+discord_server_collection=db['discord_servers']
