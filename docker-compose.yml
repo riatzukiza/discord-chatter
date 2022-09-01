@@ -3,36 +3,7 @@
 version: "3.4"
 
 services:
-  # twitter-bot:
-  #   restart: always
-  #   build:
-  #     context: ./services/discord-twitter-bot/
-  #   env_file:
-  #     - ./services/discord-twitter-bot/.env
-  #   volumes:
-  #     - ./services/discord-twitter-bot:/app
-
-
-  # jim:
-  #   restart: always
-  #   env_file:
-  #     - .env.jim
-  #   volumes:
-  #     - .:/app
-  #   image: discord-rnn-bot
-  #   build: .
-
-  duck-image-injestor:
-    restart: always
-    env_file:
-      - .env.duck
-      - .env
-    volumes:
-      - ./services/image-injestor:/app
-      - ./shared:/app/shared
-    build: ./services/image-injestor
-
-  duck-indexer:
+  indexer:
     restart: always
     env_file:
       - .env.duck
@@ -41,8 +12,7 @@ services:
       - ./services/discord-indexer:/app
       - ./shared:/app/shared
     build: ./services/discord-indexer
-
-  duck-message-generator_0: &message-generator
+  message-generator_0: &message-generator
     restart: always
     env_file:
       - .env.duck
@@ -52,17 +22,7 @@ services:
       - ./shared:/app/shared
       - ./models:/app/models
     build: ./services/discord-message-generator
-
-  # duck-message-generator_1: 
-  #   <<: *message-generator
-
-  # duck-message-generator_2: 
-  #   <<: *message-generator
-
-  # duck-message-generator_3: 
-  #   <<: *message-generator
-
-  duck-message-dispatcher:
+  message-dispatcher:
     restart: always
     env_file:
       - .env.duck
@@ -71,8 +31,7 @@ services:
       - ./services/discord-message-dispatcher:/app
       - ./shared:/app/shared
     build: ./services/discord-message-dispatcher
-
-  duck-model-trainer:
+  model-trainer:
     restart: always
     env_file:
       - .env.duck
@@ -85,7 +44,7 @@ services:
     deploy:
       resources:
         reservations:
-          devices:
+           devices:
             - driver: nvidia
-              device_ids: [ "0" ]
+              device_ids: [ "2" ]
               capabilities: [gpu]
