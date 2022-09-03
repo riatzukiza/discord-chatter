@@ -1,6 +1,10 @@
 
 FROM continuumio/miniconda3
-
+ 
+ARG user=trainer
+ARG group=trainer
+ARG uid=1000
+ARG gid=1000
 # RUN  conda create --name tf-gpu python=3.9
 
 # RUN  conda activate tf-gpu
