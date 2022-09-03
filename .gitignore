@@ -1,4 +1,5 @@
 twitter-bot/node_modules
+__pycache__/
 token.js
 .env.*
 .env
