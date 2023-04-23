@@ -22,6 +22,7 @@ services:
       - ./shared:/app/shared
       - ./models:/app/models
     build: ./services/discord-message-generator
+
   message-dispatcher:
     restart: always
     env_file:
@@ -30,7 +31,9 @@ services:
     volumes:
       - ./services/discord-message-dispatcher:/app
       - ./shared:/app/shared
+
     build: ./services/discord-message-dispatcher
+
   model-trainer:
     restart: always
     env_file:
@@ -47,4 +50,46 @@ services:
            devices:
             - driver: nvidia
               device_ids: [ "2" ]
-              capabilities: [gpu]
+   # frontend:
+   #  build:
+   #    context: frontend
+   #    target: development
+   #  ports:
+   #    - 3000:3000
+   #  stdin_open: true
+   #  volumes:
+   #    - ./frontend:/usr/src/app
+   #    - /usr/src/app/node_modules
+   #  restart: always
+   #  networks:
+   #    - react-express
+   #  depends_on:
+   #    - backend
+
+  # backend:
+  #   restart: always
+  #   build:
+  #     context: backend
+  #     target: development
+  #   volumes:
+  #     - ./backend:/usr/src/app
+  #     - /usr/src/app/node_modules
+  #   depends_on:
+  #     - mongo
+  #   networks:
+  #     - express-mongo
+  #     - react-express
+  #   expose:
+  #     - 3000
+  mongo:
+    restart: always
+    image: mongo:4.2.0
+    volumes:
+      - ./data:/data/db
+    networks:
+      - mongo
+    expose:
+      - 27017
+networks:
+  react-express:
+  mongo:             capabilities: [gpu]
