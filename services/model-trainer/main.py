@@ -1,9 +1,8 @@
 """It is where we define the model stuff"""
 from shared.textgenrnn.textgenrnn import textgenrnn
-from shared.mongodb import discord_channel_collection, discord_message_collection
+from shared.mongodb import discord_message_collection
 
 import shared.settings as settings
-import discord
 
 import json
 
@@ -16,6 +15,7 @@ model=textgenrnn(
     verbose=settings.TEXTGEN_VERBOSE,
     gen_epochs=settings.TEXTGEN_GEN_EPOCHS,
     dropout=settings.TEXTGEN_DROPOUT,
+    allow_growth=True,
     config={
         'rnn_layers': settings.TEXTGEN_RNN_LAYERS,
         'rnn_size': settings.TEXTGEN_RNN_SIZE,
@@ -80,7 +80,6 @@ def encode_sample(message, channels, channel_names):
     }
 
 def get_messages_for_training():
-    print({ "recipient":settings.DISCORD_CLIENT_USER_ID })
     results = discord_message_collection.aggregate([
         { "$match": { "recipient":settings.DISCORD_CLIENT_USER_ID,
                         "author":{"$nin":[settings.DISCORD_CLIENT_USER_ID]}
@@ -111,6 +110,7 @@ while True:
 #         for channel in channels:
 #             print("training channel",channel)
         messages=get_messages_for_training()
+        print(messages)
         if messages:
             model.train_on_texts(
                 texts=messages,

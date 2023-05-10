@@ -166,14 +166,15 @@ class textgenrnn:
         Learning rate is a function of the history
         """
         if self.loss_history is not None and self.loss_history.loss:
-            return (
+            return min(
                 self.loss_history.loss *
                 self.base_lr *
                 self.loss_history.loss_max *
                 self.loss_history.loss_min *
                 self.loss_history.val_loss *
                 self.loss_history.val_loss_min *
-                self.loss_history.val_loss_max
+                self.loss_history.val_loss_max,
+                self.base_lr
             )
         else:
             return self.base_lr

@@ -121,16 +121,10 @@ def shuffle_array(array):
 @client.event
 async def on_ready():
     while True:
-        for channel in shuffle_array(client.get_all_channels()):
-            try:
-                if isinstance(channel, discord.TextChannel):
-                    print(f"Indexing channel {channel}")
-                    await asyncio.sleep(1)
-                    await index_channel( channel )
-            except Exception as e:
-                await asyncio.sleep(10)
-                print("something happened:")
-                print(e)
-                traceback.print_exc()
+        for  channel in shuffle_array(list(client.get_all_channels())):
+            if isinstance(channel, discord.TextChannel):
+                print(f"Indexing channel {channel}")
+                await asyncio.sleep(1)
+                await index_channel( channel )
 
 client.run(settings.DISCORD_TOKEN)

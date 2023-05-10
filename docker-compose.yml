@@ -5,18 +5,26 @@ version: "3.4"
 services:
   indexer:
     restart: always
+    depends_on:
+      - mongo
+    networks:
+      - mongo
     env_file:
       - .env.duck
-      - .env
+      # - .env
     volumes:
       - ./services/discord-indexer:/app
       - ./shared:/app/shared
     build: ./services/discord-indexer
   message-generator_0: &message-generator
     restart: always
+    depends_on:
+      - mongo
+    networks:
+      - mongo
     env_file:
       - .env.duck
-      - .env
+      # - .env
     volumes:
       - ./services/discord-message-generator:/app
       - ./shared:/app/shared
@@ -25,9 +33,13 @@ services:
 
   message-dispatcher:
     restart: always
+    depends_on:
+      - mongo
+    networks:
+      - mongo
     env_file:
       - .env.duck
-      - .env
+      # - .env
     volumes:
       - ./services/discord-message-dispatcher:/app
       - ./shared:/app/shared
@@ -36,9 +48,13 @@ services:
 
   model-trainer:
     restart: always
+    depends_on:
+      - mongo
+    networks:
+      - mongo
     env_file:
       - .env.duck
-      - .env
+      # - .env
     volumes:
       - ./services/model-trainer:/app
       - ./shared:/app/shared
@@ -49,7 +65,8 @@ services:
         reservations:
            devices:
             - driver: nvidia
-              device_ids: [ "2" ]
+              count: 1
+              capabilities: [gpu]
    # frontend:
    #  build:
    #    context: frontend
@@ -83,7 +100,10 @@ services:
   #     - 3000
   mongo:
     restart: always
-    image: mongo:4.2.0
+    image: mongo
+    # environment:
+      # - MONGO_INITDB_ROOT_USERNAME=root
+      # - MONGO_INITDB_ROOT_PASSWORD=example
     volumes:
       - ./data:/data/db
     networks:
@@ -92,4 +112,4 @@ services:
       - 27017
 networks:
   react-express:
-  mongo:             capabilities: [gpu]
+  mongo:

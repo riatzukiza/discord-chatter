@@ -6,7 +6,7 @@ from . import settings
 
 def get_database():
 
-    CONNECTION_STRING = f"mongodb+srv://{settings.MONGODB_ADMIN_USER_NAME}:{settings.MONGODB_ADMIN_USER_PASSWORD}@{settings.MONGODB_HOST_NAME}/{settings.MONGODB_ADMIN_DATABASE_NAME}"
+    CONNECTION_STRING = f"mongodb://{settings.MONGODB_HOST_NAME}/{settings.MONGODB_ADMIN_DATABASE_NAME}"
     client = MongoClient(CONNECTION_STRING)
     return client[settings.MONGODB_ADMIN_DATABASE_NAME]
 
