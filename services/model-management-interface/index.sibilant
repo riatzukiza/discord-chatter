@@ -18,10 +18,8 @@
 (include "../../macros.sibilant")
 (async-block
 
- ;; (await (import "../../modules/global.mjs"))
  (const app (express))
  (const (lit connection-string) (await (import "./settings.mjs")))
- ;; (const TW (await (import "../../modules/twitter/index.mjs")))
  (await (.catch (mongoose.connect connection-string
                                   { ssl: true,
                                     use-new-url-parser : true,
@@ -34,14 +32,10 @@
             (const (lit Twitter-users Tweets) (await (import "../../modules/models/twitter.mjs")))
             (const (lit page limit) req.query)
             (const tweet-count (await (Tweets.count)))
-            ;; (const skip (* (- (or page 1) 1)
-            ;;                (or (parse-int limit 10) 10)))
 
 
             (const tweets (await (pipe (Tweets.find {})
                                        (.skip (- tweet-count limit))
-                                       ;; (.sort  {tw_id 1})
-                                       ;; (.limit (or (parse-int limit 10) 10))
                                        )))
             (print tweets)
 

@@ -30,6 +30,10 @@ services:
       - ./shared:/app/shared
       - ./models:/app/models
     build: ./services/discord-message-generator
+    deploy:
+      resources:
+        limits:
+          memory: 16G
 
   message-dispatcher:
     restart: always
@@ -39,11 +43,9 @@ services:
       - mongo
     env_file:
       - .env.duck
-      # - .env
     volumes:
       - ./services/discord-message-dispatcher:/app
       - ./shared:/app/shared
-
     build: ./services/discord-message-dispatcher
 
   model-trainer:
@@ -65,8 +67,30 @@ services:
         reservations:
            devices:
             - driver: nvidia
-              count: 1
+              device_ids: [ "0" ]
               capabilities: [gpu]
+
+  # transformer-model-trainer:
+  #   restart: always
+  #   depends_on:
+  #     - mongo
+  #   networks:
+  #     - mongo
+  #   env_file:
+  #     - .env.duck
+  #     # - .env
+  #   volumes:
+  #     - ./services/model-trainer:/app
+  #     - ./shared:/app/shared
+  #     - ./models:/app/models
+  #   build: ./services/model-trainer
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #          devices:
+  #           - driver: nvidia
+  #             device_ids: [ "0" ]
+  #             capabilities: [gpu]
    # frontend:
    #  build:
    #    context: frontend

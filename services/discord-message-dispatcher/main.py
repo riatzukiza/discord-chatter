@@ -11,7 +11,6 @@ intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
 
-
 def start_discord():
     client.run(settings.DISCORD_TOKEN)
 

@@ -43,23 +43,6 @@ def textgenrnn_model(num_classes, cfg,
     return model
 
 
-'''
-Create a new LSTM layer per parameters. Unfortunately,
-each combination of parameters must be hardcoded.
-
-The normal LSTMs use sigmoid recurrent activations
-for parity with CuDNNLSTM:
-https://github.com/keras-team/keras/issues/8860
-'''
-
-'''
-FIXME
-From TensorFlow 2 you do not need to specify CuDNNLSTM.
-You can just use LSTM with no activation function and it will
-automatically use the CuDNN version.
-This part can probably be cleaned up.
-'''
-
 def new_rnn(cfg, layer_num):
     if cfg['rnn_bidirectional']:
         return Bidirectional(LSTM(cfg['rnn_size'],

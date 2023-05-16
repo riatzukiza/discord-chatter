@@ -54,29 +54,15 @@ def remove_url_from_string(string):
 def encode_sample(message, channels, channel_names):
     return {
         "recipient":message['recipient'],
-        "recipient_name":message['recipient_name'],
-        "created_at":str(message['created_at']),
-        "raw_mentions":message['raw_mentions'],
-        "author_name":message['author_name'],
-        "guild":message['guild'],
-        "hashtags":extract_hashtags_from_string(message['content']),
-        "extracted_mentions":extract_mentions_from_string(message['content']),
+        "channel":message['channel'],
         "channel_name": message['channel_name'],
-        "original_content":message['content'],
-        "urls":extract_urls_from_string(message['content']),
         "content":remove_hashtag_from_string(
             remove_mention_from_string(
                 remove_url_from_string(
                     message['content']
                 )
             )
-        ),
-        # "parts_of_speech":extract_parts_of_speech(message['content']),
-        # "attachments":message.get('attachments',[]),
-        "author":message['author'],
-        # "channels":channels,
-        # "channel_names":channel_names,
-        "channel":message['channel']
+        )
     }
 
 def get_messages_for_training():
@@ -84,7 +70,7 @@ def get_messages_for_training():
         { "$match": { "recipient":settings.DISCORD_CLIENT_USER_ID,
                         "author":{"$nin":[settings.DISCORD_CLIENT_USER_ID]}
                      } },
-        {"$sample":{"size":100}},
+        {"$sample":{"size":1000}},
     ], allowDiskUse=True)
     # Collect all channels first
     channels = []
@@ -104,13 +90,9 @@ def get_messages_for_training():
     return training_data
 
 while True:
-#     print("getting training data")
-#     channels=discord_channel_collection.find({})
+    print(settings.TEXTGEN_BATCH_SIZE)
     try:
-#         for channel in channels:
-#             print("training channel",channel)
         messages=get_messages_for_training()
-        print(messages)
         if messages:
             model.train_on_texts(
                 texts=messages,
