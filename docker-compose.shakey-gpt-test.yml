@@ -1,0 +1,17 @@
+version: "3.4"
+services:
+  shakespeare-trainer-generator:
+    restart: always
+    volumes:
+      - ./services/shakey-gpt-trainer-generator-hack:/app
+      - ./shared:/app/shared
+    build: ./services/shakey-gpt-trainer-generator-hack
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+           devices:
+            - driver: nvidia
+              device_ids: [ "2" ]
+              capabilities: [gpu]

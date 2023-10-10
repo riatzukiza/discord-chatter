@@ -10,6 +10,7 @@ RUN python3 -m pip install tqdm
 
 RUN python -m pip install pymongo
 RUN python -m pip install dnspython
+RUN python -m pip install torch numpy transformers datasets tiktoken wandb tqdm
 
 # RUN ln -s /opt/conda/lib/libcusolver.so.10 /opt/conda/lib/libcusolver.so.11
 
