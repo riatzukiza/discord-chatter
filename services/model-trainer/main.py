@@ -51,7 +51,7 @@ def remove_url_from_string(string):
 #     from nltk import word_tokenize, pos_tag
 #     return pos_tag(word_tokenize(string))
 
-def encode_sample(message, channels, channel_names):
+def encode_sample(message):
     return {
         "recipient":message['recipient'],
         "channel":message['channel'],
@@ -65,34 +65,30 @@ def encode_sample(message, channels, channel_names):
         )
     }
 
-def get_messages_for_training():
-    results = discord_message_collection.aggregate([
+def collect_samples(size=100):
+    return discord_message_collection.aggregate([
         { "$match": { "recipient":settings.DISCORD_CLIENT_USER_ID,
                         "author":{"$nin":[settings.DISCORD_CLIENT_USER_ID]}
                      } },
-        {"$sample":{"size":1000}},
+        {"$sample":{"size":size}},
     ], allowDiskUse=True)
     # Collect all channels first
-    channels = []
-    channel_names = []
-    messages=[]
+
+def get_messages_for_training(frames=1000):
     training_data=[]
-    for result in results:
-        messages.append(result)
-        if result["channel"] not in channels:
-            channels.append(result["channel"])
-            channel_names.append(result["channel_name"])
-
-
-    for message in messages:
-        training_data.append(json.dumps(
-            encode_sample(message, channels, channel_names) , separators=(",",":")))
+    for _ in range(frames):
+        frame=[]
+        messages=collect_samples()
+        for message in messages:
+            frame.append(encode_sample(message))
+        training_data.append(json.dumps(frame, separators=(",",":")))
     return training_data
 
 while True:
     print(settings.TEXTGEN_BATCH_SIZE)
     try:
         messages=get_messages_for_training()
+        print("training on", messages)
         if messages:
             model.train_on_texts(
                 texts=messages,
