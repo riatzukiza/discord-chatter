@@ -18,6 +18,7 @@ COPY Pipfile.lock .
 
 RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --deploy
 
+
 FROM base AS runtime
 
 # Copy virtual env from python-deps stage

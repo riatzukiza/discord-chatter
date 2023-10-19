@@ -1,0 +1,29 @@
+services:
+  message-dispatcher:
+    restart: always
+    depends_on:
+      - mongo
+    networks:
+      - mongo
+    env_file:
+      - .env.duck
+    volumes:
+      - ./services/discord-message-dispatcher:/app
+      - ./shared:/app/shared
+    build: ./services/discord-message-dispatcher
+  gpt-generator:
+    restart: always
+    depends_on:
+      - mongo
+    networks:
+      - mongo
+    env_file:
+      - .env.duck
+    volumes:
+      - ./services/gpt-generator:/app
+      - ./shared:/app/shared
+      - ./nano_gpt_model:/app/models
+    build: ./services/gpt-generator
+
+networks:
+  mongo:

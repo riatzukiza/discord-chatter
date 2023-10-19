@@ -1,6 +1,8 @@
 """It is where we define the model stuff"""
 from shared.textgenrnn.textgenrnn import textgenrnn
 from shared.mongodb import discord_message_collection
+import re
+
 
 import shared.settings as settings
 
@@ -26,23 +28,23 @@ model=textgenrnn(
         'word_level': settings.TEXTGEN_WORD_LEVEL,
         'single_text': settings.TEXTGEN_SINGLE_TEXT
     })
-def extract_hashtags_from_string(string):
-    return [hashtag.lower() for hashtag in string.split() if hashtag.startswith("#")]
+# def extract_hashtags_from_string(string):
+#     return [hashtag.lower() for hashtag in string.split() if hashtag.startswith("#")]
 
-def remove_hashtag_from_string(string):
-    return " ".join(word for word in string.split() if not word.startswith("#"))
+# def remove_hashtag_from_string(string):
+#     return " ".join(word for word in string.split() if not word.startswith("#"))
 
-def extract_mentions_from_string(string):
-    return [mention.lower() for mention in string.split() if mention.startswith("@")]
+# def extract_mentions_from_string(string):
+#     return [mention.lower() for mention in string.split() if mention.startswith("@")]
 
-def remove_mention_from_string(string):
-    return " ".join(word for word in string.split() if not word.startswith("@"))
+# def remove_mention_from_string(string):
+#     return " ".join(word for word in string.split() if not word.startswith("@"))
 
-def extract_urls_from_string(string):
-    return [url.lower() for url in string.split() if url.startswith("http")]
+# def extract_urls_from_string(string):
+#     return [url.lower() for url in string.split() if url.startswith("http")]
 
-def remove_url_from_string(string):
-    return " ".join(word for word in string.split() if not word.startswith("http"))
+# def remove_url_from_string(string):
+#     return " ".join(word for word in string.split() if not word.startswith("http"))
 
 # def extract_parts_of_speech(string):
 #     """
@@ -56,13 +58,7 @@ def encode_sample(message):
         "recipient":message['recipient'],
         "channel":message['channel'],
         "channel_name": message['channel_name'],
-        "content":remove_hashtag_from_string(
-            remove_mention_from_string(
-                remove_url_from_string(
-                    message['content']
-                )
-            )
-        )
+        "content": re.sub( "(?:http[s]*\S+|[@#]\w+)\s+", '', message )
     }
 
 def collect_samples(size=100):

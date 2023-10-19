@@ -1,6 +1,8 @@
 twitter-bot/node_modules
+nano_gpt_model
 __pycache__/
 data/
 token.js
 .env.*
 .env
+*.pt

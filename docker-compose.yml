@@ -1,5 +1,3 @@
-version: "3.4"
-
 services:
   indexer:
     restart: always
@@ -14,25 +12,6 @@ services:
       - ./services/discord-indexer:/app
       - ./shared:/app/shared
     build: ./services/discord-indexer
-  message-generator_0: &message-generator
-    restart: always
-    depends_on:
-      - mongo
-    networks:
-      - mongo
-    env_file:
-      - .env.duck
-      # - .env
-    volumes:
-      - ./services/discord-message-generator:/app
-      - ./shared:/app/shared
-      - ./models:/app/models
-    build: ./services/discord-message-generator
-    deploy:
-      resources:
-        limits:
-          memory: 8G
-
   message-dispatcher:
     restart: always
     depends_on:
@@ -45,8 +24,7 @@ services:
       - ./services/discord-message-dispatcher:/app
       - ./shared:/app/shared
     build: ./services/discord-message-dispatcher
-
-  model-trainer:
+  gpt-generator:
     restart: always
     depends_on:
       - mongo
@@ -54,74 +32,38 @@ services:
       - mongo
     env_file:
       - .env.duck
-      # - .env
     volumes:
-      - ./services/model-trainer:/app
+      - ./services/gpt-generator:/app
       - ./shared:/app/shared
-      - ./models:/app/models
-    build: ./services/model-trainer
+      - ./nano_gpt_model:/app/models
+    build: ./services/gpt-generator
     deploy:
       resources:
-        limits:
-          memory: 8G
         reservations:
            devices:
             - driver: nvidia
               device_ids: [ "0" ]
               capabilities: [gpu]
-
-  # transformer-model-trainer:
-  #   restart: always
-  #   depends_on:
-  #     - mongo
-  #   networks:
-  #     - mongo
-  #   env_file:
-  #     - .env.duck
-  #     # - .env
-  #   volumes:
-  #     - ./services/model-trainer:/app
-  #     - ./shared:/app/shared
-  #     - ./models:/app/models
-  #   build: ./services/model-trainer
-  #   deploy:
-  #     resources:
-  #       reservations:
-  #          devices:
-  #           - driver: nvidia
-  #             device_ids: [ "0" ]
-  #             capabilities: [gpu]
-   # frontend:
-   #  build:
-   #    context: frontend
-   #    target: development
-   #  ports:
-   #    - 3000:3000
-   #  stdin_open: true
-   #  volumes:
-   #    - ./frontend:/usr/src/app
-   #    - /usr/src/app/node_modules
-   #  restart: always
-   #  networks:
-   #    - react-express
-   #  depends_on:
-   #    - backend
-
-  # backend:
-  #   restart: always
-  #   build:
-  #     context: backend
-  #     target: development
-  #   volumes:
-  #     - ./backend:/usr/src/app
-  #     - /usr/src/app/node_modules
-  #   depends_on:
-  #     - mongo
-  #   networks:
-  #     - express-mongo
-  #     - react-express
-  #   expose:
-  #     - 3000
+  gpt-trainer:
+    restart: always
+    depends_on:
+      - mongo
+    networks:
+      - mongo
+    env_file:
+      - .env.duck
+    volumes:
+      - ./services/gpt-trainer:/app
+      - ./shared:/app/shared
+      - ./nano_gpt_model:/app/models
+    build: ./services/gpt-trainer
+    deploy:
+      resources:
+        reservations:
+           devices:
+            - driver: nvidia
+              device_ids: [ "2" ]
+              capabilities: [gpu]
   mongo:
     restart: always
     image: mongo
@@ -135,5 +77,4 @@ services:
     expose:
       - 27017
 networks:
-  react-express:
   mongo:
