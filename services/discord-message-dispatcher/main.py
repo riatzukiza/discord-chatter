@@ -1,4 +1,6 @@
 import asyncio
+from datetime import time
+from random import randint
 import discord
 import json
 
@@ -22,23 +24,32 @@ client = discord.Client(intents=intents)
 # def decode_attachments(attachments):
 #     return [discord.File(base_64_decode_bitmap(attachment),"image.png") for attachment in attachments]
 
+# {"current_id": 348261730905882624}
 async def handle_generated_messages():
     unsent_messages = generated_message_collection.find({"sent":False, "is_valid":True})
     for message in unsent_messages:
         print(f"sending message: {message['sample_text']}")
 
         try:
-            sample_data=json.loads(message['sample_text'])[-1]
-            print(sample_data)
-            try:
-                channel = await client.fetch_channel(int(sample_data['channel']))
-            except Exception as e:
-                channel = await client.fetch_channel(int(settings.DEFAULT_CHANNEL))
+            sample_data=json.loads(message['sample_text'])
+            for sample in sample_data:
+                print(sample)
+                try:
+                    channel = await client.fetch_channel(int(sample['channel']))
+                except Exception as e:
+                    print("default channel", int(settings.DEFAULT_CHANNEL))
+                    channel = await client.fetch_channel(int(settings.DEFAULT_CHANNEL))
 
-            print(channel.name)
+                print(channel.name)
 
-            generated_message_collection.update_one({"_id":message['_id']},{"$set":{"sent":True}})
-            await channel.send(sample_data['content'])
+                try:
+                    # await asyncio.sleep(randint(1,2))
+                    generated_message_collection.update_one({"_id":message['_id']},{"$set":{"sent":True}})
+                    await channel.send(sample['content'])
+                except Exception as e:
+                    print(e)
+                    print(f"failed to send message: {sample}")
+                    pass
         except Exception as e:
             print(e)
             generated_message_collection.update_one({"_id":message['_id']},{"$set":{"is_valid":False,"sent":False}})

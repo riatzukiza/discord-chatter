@@ -12,6 +12,7 @@ datasets = "*"
 wandb = "*"
 tqdm = "*"
 pymongo = "*"
+chromadb = "*"
 
 [dev-packages]
 

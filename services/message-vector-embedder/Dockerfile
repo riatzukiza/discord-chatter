@@ -31,4 +31,6 @@ RUN mkdir /app
 WORKDIR /app
 COPY . .
 
+RUN pip install chromadb
+
 CMD ["python", "./main.py"]

@@ -1,4 +1,12 @@
 services:
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes: 
+      - cache:/data
   indexer:
     restart: always
     depends_on:
@@ -35,7 +43,7 @@ services:
     volumes:
       - ./services/gpt-generator:/app
       - ./shared:/app/shared
-      - ./nano_gpt_model:/app/models
+      - ./models:/app/models
     build: ./services/gpt-generator
     deploy:
       resources:
@@ -55,7 +63,7 @@ services:
     volumes:
       - ./services/gpt-trainer:/app
       - ./shared:/app/shared
-      - ./nano_gpt_model:/app/models
+      - ./models:/app/models
     build: ./services/gpt-trainer
     deploy:
       resources:
@@ -71,10 +79,37 @@ services:
       # - MONGO_INITDB_ROOT_USERNAME=root
       # - MONGO_INITDB_ROOT_PASSWORD=example
     volumes:
-      - ./data:/data/db
+      - ./data/mongodb:/data/db
     networks:
       - mongo
     expose:
       - 27017
+
+  chroma:
+    restart: always
+    image: chroma
+    volumes:
+      - ./data/chroma:/chroma/chroma
+    networks:
+      - chroma
+    expose:
+      - 8000
+  message-vector-embedder:
+    restart: always
+    depends_on:
+      - mongo
+    networks:
+      - mongo
+    env_file:
+      - .env.duck
+    volumes:
+      - ./services/message-vector-embedder:/app
+      - ./shared:/app/shared
+      - ./chroma:/app/chroma
+    build: ./services/gpt-trainer
+volumes:
+  cache:
+    driver: local
 networks:
   mongo:
+  chroma:
