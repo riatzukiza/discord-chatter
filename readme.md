@@ -1,4 +1,4 @@
-# Discord RNN bot
+# Discord LLMLLMLLMLLMLLMLLMLLMLLM bot
 
 Have you ever wanted a robot friend? Feeling lonely? bored?
 Do you have a graphics card?
