@@ -1,10 +1,5 @@
 import tiktoken
-import os
 import torch
-import pickle
-
-from shared.nano_gpt.model import GPTConfig, GPT
-# from shared.nano_gpt.trainer import encode_training_documents
 from contextlib import nullcontext
 
 
@@ -38,6 +33,7 @@ def generate_text_from_gpt_model(
     model.eval()
     # run generation
     samples=[]
+    # TODO: make this a batched operation
     with torch.no_grad():
         with ctx:
             for k in range(num_samples):
