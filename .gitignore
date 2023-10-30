@@ -8,3 +8,5 @@ token.js
 *.pt
 *.bin
 *.txt
+models/duck_gpt.v0.2.0/ckpt.pt.backup
+scripts/hack.sh
