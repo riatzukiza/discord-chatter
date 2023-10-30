@@ -1,4 +1,4 @@
-# Discord LLMLLMLLMLLMLLMLLMLLMLLM bot
+# Discord LLM chat agent
 
 Have you ever wanted a robot friend? Feeling lonely? bored?
 Do you have a graphics card?
