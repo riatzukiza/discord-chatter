@@ -1,0 +1,12 @@
+services:
+  mongo:
+    restart: always
+    image: mongo
+    volumes:
+      - ./data:/data/db
+    networks:
+      - mongo
+    expose:
+      - 27017
+networks:
+  mongo:

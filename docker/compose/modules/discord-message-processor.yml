@@ -1,0 +1,13 @@
+services:
+  indexer:
+    restart: always
+    depends_on:
+      - mongo
+    networks:
+      - mongo
+    env_file:
+      - ../../../.env.duck
+    volumes:
+      - ./services/discord-indexer:/app
+      - ./py/shared:/app/shared
+    build: ./services/discord-indexer

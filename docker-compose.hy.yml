@@ -8,9 +8,9 @@ services:
   #   env_file:
   #     - .env.duck
   #   volumes:
-  #     - ./services/py/message-vector-embedder:/app
-  #     - ./py/shared:/app/shared
-  #   build: ./services/py/gpt-trainer
+  #     - ./services/hy/message-vector-embedder:/app
+  #     - ./hy/shared:/app/shared
+  #   build: ./services/hy/gpt-trainer
   indexer:
     restart: always
     depends_on:
@@ -20,9 +20,9 @@ services:
     env_file:
       - .env.duck
     volumes:
-      - ./services/py/discord-indexer:/app
-      - ./shared/py:/app/shared
-    build: ./services/py/discord-indexer
+      - ./services/hy/discord-indexer:/app
+      - ./shared/hy:/app/shared
+    build: ./services/hy/discord-indexer
   message-dispatcher:
     restart: always
     depends_on:
@@ -32,9 +32,9 @@ services:
     env_file:
       - .env.duck
     volumes:
-      - ./services/py/discord-message-dispatcher:/app
-      - ./shared/py:/app/shared
-    build: ./services/py/discord-message-dispatcher
+      - ./services/hy/discord-message-dispatcher:/app
+      - ./shared/hy:/app/shared
+    build: ./services/hy/discord-message-dispatcher
   gpt-generator:
     restart: always
 
@@ -46,10 +46,10 @@ services:
     env_file:
       - .env.duck
     volumes:
-      - ./services/py/gpt-generator:/app
-      - ./shared/py:/app/shared
+      - ./services/hy/gpt-generator:/app
+      - ./shared/hy:/app/shared
       - ./models:/app/models
-    build: ./services/py/gpt-generator
+    build: ./services/hy/gpt-generator
     deploy:
       resources:
         reservations:
@@ -66,10 +66,10 @@ services:
     env_file:
       - .env.duck
     volumes:
-      - ./services/py/gpt-trainer:/app
-      - ./shared/py:/app/shared
+      - ./services/hy/gpt-trainer:/app
+      - ./shared/hy:/app/shared
       - ./models:/app/models
-    build: ./services/py/gpt-trainer
+    build: ./services/hy/gpt-trainer
     deploy:
       resources:
         reservations:
@@ -86,6 +86,9 @@ services:
       - mongo
     expose:
       - 27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=pass
   # chroma:
   #   restart: always
   #   image: chroma

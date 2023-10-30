@@ -1,0 +1,129 @@
+name: modules
+services:
+  gpt-generator:
+    build:
+      context: /media/error/secondary-store4/devel/err-studios/discord-chatter/docker/compose/modules/services/gpt-generator
+      dockerfile: Dockerfile
+    depends_on:
+      mongo:
+        condition: service_started
+        required: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - capabilities:
+            - gpu
+            driver: nvidia
+            device_ids:
+            - "2"
+    environment:
+      DEFAULT_CHANNEL: "343299242963763200"
+      DISCORD_CLIENT_USER_ID: "449279570445729793"
+      DISCORD_CLIENT_USER_NAME: Duck
+      DISCORD_TOKEN: NDQ5Mjc5NTcwNDQ1NzI5Nzkz.GrucLr.u4WZCwCgv3wZ8HtG4iBAht4RDwr_CtHi2bt55Y
+      EXAMPLES_GENERATED_PER_BATCH: "10"
+      GEN_EPOCHS: "2"
+      LD_LIBRARY_PATH: /opt/conda/lib
+      MAX_GENERATED_LENGTH: "4096"
+      MAX_TEMP: "0.99"
+      MIN_TEMP: "0.7"
+      MODEL_NAME: Duck
+      MODEL_PATH: ./models/duck.hdf5
+      MONGODB_DATABASE_NAME: database
+      MONGODB_HOST_NAME: mongo
+      PYTHONUNBUFFERED: "1"
+      TEXTGEN_BASE_LR: "0.001"
+      TEXTGEN_BATCH_SIZE: "2048"
+      TEXTGEN_DIM_EMBEDDINGS: "100"
+      TEXTGEN_DROPOUT: "0.1"
+      TEXTGEN_MAX_LENGTH: "40"
+      TEXTGEN_MAX_WORDS: "10000"
+      TEXTGEN_NUM_EPOCHS: "1"
+      TEXTGEN_RNN_BIDIRECTIONAL: "True"
+      TEXTGEN_RNN_LAYERS: "4"
+      TEXTGEN_RNN_SIZE: "128"
+      TEXTGEN_TRAIN_SIZE: "0.8"
+      TEXTGEN_VERBOSE: "3"
+      TF_CPP_MIN_LOG_LEVEL: "3"
+    networks:
+      mongo: null
+    restart: always
+    volumes:
+    - type: bind
+      source: /media/error/secondary-store4/devel/err-studios/discord-chatter/docker/compose/modules/services/gpt-generator
+      target: /app
+      bind:
+        create_host_path: true
+    - type: bind
+      source: /media/error/secondary-store4/devel/err-studios/discord-chatter/docker/compose/modules/shared
+      target: /app/shared
+      bind:
+        create_host_path: true
+  message-dispatcher:
+    build:
+      context: /media/error/secondary-store4/devel/err-studios/discord-chatter/docker/compose/modules/services/discord-message-dispatcher
+      dockerfile: Dockerfile
+    depends_on:
+      mongo:
+        condition: service_started
+        required: true
+    environment:
+      DEFAULT_CHANNEL: "343299242963763200"
+      DISCORD_CLIENT_USER_ID: "449279570445729793"
+      DISCORD_CLIENT_USER_NAME: Duck
+      DISCORD_TOKEN: NDQ5Mjc5NTcwNDQ1NzI5Nzkz.GrucLr.u4WZCwCgv3wZ8HtG4iBAht4RDwr_CtHi2bt55Y
+      EXAMPLES_GENERATED_PER_BATCH: "10"
+      GEN_EPOCHS: "2"
+      LD_LIBRARY_PATH: /opt/conda/lib
+      MAX_GENERATED_LENGTH: "4096"
+      MAX_TEMP: "0.99"
+      MIN_TEMP: "0.7"
+      MODEL_NAME: Duck
+      MODEL_PATH: ./models/duck.hdf5
+      MONGODB_DATABASE_NAME: database
+      MONGODB_HOST_NAME: mongo
+      PYTHONUNBUFFERED: "1"
+      TEXTGEN_BASE_LR: "0.001"
+      TEXTGEN_BATCH_SIZE: "2048"
+      TEXTGEN_DIM_EMBEDDINGS: "100"
+      TEXTGEN_DROPOUT: "0.1"
+      TEXTGEN_MAX_LENGTH: "40"
+      TEXTGEN_MAX_WORDS: "10000"
+      TEXTGEN_NUM_EPOCHS: "1"
+      TEXTGEN_RNN_BIDIRECTIONAL: "True"
+      TEXTGEN_RNN_LAYERS: "4"
+      TEXTGEN_RNN_SIZE: "128"
+      TEXTGEN_TRAIN_SIZE: "0.8"
+      TEXTGEN_VERBOSE: "3"
+      TF_CPP_MIN_LOG_LEVEL: "3"
+    networks:
+      mongo: null
+    restart: always
+    volumes:
+    - type: bind
+      source: /media/error/secondary-store4/devel/err-studios/discord-chatter/docker/compose/modules/services/discord-message-dispatcher
+      target: /app
+      bind:
+        create_host_path: true
+    - type: bind
+      source: /media/error/secondary-store4/devel/err-studios/discord-chatter/docker/compose/modules/shared
+      target: /app/shared
+      bind:
+        create_host_path: true
+  mongo:
+    expose:
+    - "27017"
+    image: mongo
+    networks:
+      mongo: null
+    restart: always
+    volumes:
+    - type: bind
+      source: /media/error/secondary-store4/devel/err-studios/discord-chatter/docker/compose/modules/data
+      target: /data/db
+      bind:
+        create_host_path: true
+networks:
+  mongo:
+    name: modules_mongo
