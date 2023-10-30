@@ -12,16 +12,12 @@ services:
       resources:
         reservations:
           devices:
-          - capabilities:
-            - gpu
-            driver: nvidia
-            device_ids:
-            - "2"
+            - capabilities:
+                - gpu
+              driver: nvidia
+              device_ids:
+                - "2"
     environment:
-      DEFAULT_CHANNEL: "343299242963763200"
-      DISCORD_CLIENT_USER_ID: "449279570445729793"
-      DISCORD_CLIENT_USER_NAME: Duck
-      DISCORD_TOKEN: NDQ5Mjc5NTcwNDQ1NzI5Nzkz.GrucLr.u4WZCwCgv3wZ8HtG4iBAht4RDwr_CtHi2bt55Y
       EXAMPLES_GENERATED_PER_BATCH: "10"
       GEN_EPOCHS: "2"
       LD_LIBRARY_PATH: /opt/conda/lib
@@ -50,34 +46,34 @@ services:
       mongo: null
     restart: always
     volumes:
-    - type: bind
-      source: /media/error/secondary-store4/devel/err-studios/discord-chatter/docker/compose/modules/services/gpt-trainer
-      target: /app
-      bind:
-        create_host_path: true
-    - type: bind
-      source: /media/error/secondary-store4/devel/err-studios/discord-chatter/docker/compose/modules/shared
-      target: /app/shared
-      bind:
-        create_host_path: true
-    - type: bind
-      source: /media/error/secondary-store4/devel/err-studios/discord-chatter/docker/compose/modules/nano_gpt_model
-      target: /app/models
-      bind:
-        create_host_path: true
+      - type: bind
+        source: /media/error/secondary-store4/devel/err-studios/discord-chatter/docker/compose/modules/services/gpt-trainer
+        target: /app
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /media/error/secondary-store4/devel/err-studios/discord-chatter/docker/compose/modules/shared
+        target: /app/shared
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /media/error/secondary-store4/devel/err-studios/discord-chatter/docker/compose/modules/nano_gpt_model
+        target: /app/models
+        bind:
+          create_host_path: true
   mongo:
     expose:
-    - "27017"
+      - "27017"
     image: mongo
     networks:
       mongo: null
     restart: always
     volumes:
-    - type: bind
-      source: /media/error/secondary-store4/devel/err-studios/discord-chatter/docker/compose/modules/data
-      target: /data/db
-      bind:
-        create_host_path: true
+      - type: bind
+        source: /media/error/secondary-store4/devel/err-studios/discord-chatter/docker/compose/modules/data
+        target: /data/db
+        bind:
+          create_host_path: true
 networks:
   mongo:
     name: modules_mongo
